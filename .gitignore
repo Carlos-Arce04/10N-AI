@@ -46,3 +46,11 @@ dist/
 # VS Code / IDEs
 .vscode/
 .idea/
+
+# Credenciales y llaves de Google Cloud / APIs privadas
+credentials/
+backend/credentials/
+backend/credentials/*
+*.json
+!package*.json
+!tsconfig*.json
