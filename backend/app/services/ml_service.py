@@ -59,7 +59,7 @@ class MLService:
 
         return {
             "success": True,
-            "modelo": "Random Forest Regressor (Clase 3)",
+            "modelo": "Cotizador de Vehículos",
             "precio_estimado_lakhs": round(precio_estimado, 2),
             "precio_estimado_usd": round(precio_estimado * 1200, 2), # Estimado referencial
             "antiguedad_anios": vehicle_age,
@@ -96,7 +96,7 @@ class MLService:
 
         return {
             "success": True,
-            "modelo": "Random Forest Classifier (Clase 3)",
+            "modelo": "Evaluación de Calidad de Vino",
             "calidad_alta": bool(pred == 1),
             "diagnostico": "ALTA CALIDAD (Certificado Premium)" if pred == 1 else "CALIDAD ESTÁNDAR / REGULAR",
             "probabilidad_alta_calidad": round(prob * 100, 2),
@@ -138,7 +138,7 @@ class MLService:
 
         return {
             "success": True,
-            "modelo": "Random Forest Balanced (Clase 5)",
+            "modelo": "Análisis de Retención de Clientes",
             "en_riesgo_churn": bool(pred == 1),
             "diagnostico": "ALTO RIESGO DE FUGA (CHURN DETECTADO)" if pred == 1 else "CLIENTE ESTABLE / FIDELIZADO",
             "probabilidad_cancelacion": round(prob * 100, 2),
@@ -184,7 +184,7 @@ class MLService:
 
         return {
             "success": True,
-            "modelo": pkg.get("nombre", "Random Forest Regressor (Clase 3)"),
+            "modelo": "Proyección de Precio del Aguacate",
             "precio_unitario_usd": round(precio, 2),
             "precio_estimado_usd": round(precio, 2),
             "tipo_cultivo": "Orgánico" if is_organic == 1 else "Convencional",
@@ -226,7 +226,7 @@ class MLService:
 
         return {
             "success": True,
-            "modelo": "Support Vector Machine (Kernel RBF - Clase 4)",
+            "modelo": "Evaluación de Riesgo de ACV",
             "alerta_stroke": bool(pred == 1),
             "diagnostico": "ALTO RIESGO DE ACV / STROKE (Alerta Clínica)" if pred == 1 else "RIESGO BAJO / CONTROLADO",
             "probabilidad_evento_vascular": round(prob * 100, 2),
