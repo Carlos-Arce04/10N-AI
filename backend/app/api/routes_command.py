@@ -1,26 +1,65 @@
 import re
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from app.services.ml_service import ml_service
 
 router = APIRouter(prefix="/api/command", tags=["Comandos de Voz del Asistente"])
 
+def normalize_spoken_spanish(text: str) -> str:
+    """Normaliza variaciones fonéticas comunes de voz y convierte números hablados en dígitos."""
+    t = text.lower().strip()
+    
+    # 1. Normalización de términos clave de ML mal transcriptos fonéticamente
+    t = re.sub(r'\b(bit\s*coin|bicoin|bitcoins|bitcon)\b', 'bitcoin', t)
+    t = re.sub(r'\b(ese\s*y\s*pe|s\s*y\s*p|s\s*&\s*p|sp\s*500|s\s*y\s*p\s*500|ese\s*y\s*pe\s*quinientos)\b', 'sp500', t)
+    t = re.sub(r'\b(a\.?\s*c\.?\s*v\.?|derrame\s*cerebral|infarto\s*cerebral|accidente\s*cerebrovascular)\b', 'stroke', t)
+    t = re.sub(r'\b(grasa\s*corpolar|porcentaje\s*grasa|grasa\s*corporal|composicion\s*corporal)\b', 'grasa', t)
+    t = re.sub(r'\b(hepatitis\s*c|hepatitis|patologia\s*hepatica)\b', 'hepatitis', t)
+    t = re.sub(r'\b(cirrosis\s*hepatica|cirrosis|estadio\s*de\s*cirrosis)\b', 'cirrosis', t)
+    t = re.sub(r'\b(abandono|cancelacion|retencion|fuga\s*de\s*clientes?)\b', 'churn', t)
+    t = re.sub(r'\b(palta|aguacates?|avocado)\b', 'aguacate', t)
+    t = re.sub(r'\b(autos?|carros?|vehiculos?|vehículos?|coches?)\b', 'auto', t)
+    t = re.sub(r'\b(vinos?|enologia|enológico|enologico)\b', 'vino', t)
+    
+    # 2. Conversión de números hablados comunes en español a dígitos numéricos
+    words_to_num = {
+        'dos mil veintiséis': '2026', 'dos mil veinticinco': '2025', 'dos mil veinticuatro': '2024',
+        'dos mil veintitrés': '2023', 'dos mil veintidós': '2022', 'dos mil veintiuno': '2021',
+        'dos mil veinte': '2020', 'dos mil diecinueve': '2019', 'dos mil dieciocho': '2018',
+        'dos mil diecisiete': '2017', 'dos mil dieciséis': '2016', 'dos mil quince': '2015',
+        'dos mil': '2000', 'mil': '1000',
+        'veintinueve': '29', 'veintiocho': '28', 'veintisiete': '27', 'veintiséis': '26',
+        'veinticinco': '25', 'veinticuatro': '24', 'veintitrés': '23', 'veintidós': '22',
+        'veintiuno': '21', 'veinte': '20',
+        'diecinueve': '19', 'dieciocho': '18', 'diecisiete': '17', 'dieciséis': '16',
+        'quince': '15', 'catorce': '14', 'trece': '13', 'doce': '12', 'once': '11', 'diez': '10',
+        'nueve': '9', 'ocho': '8', 'siete': '7', 'seis': '6', 'cinco': '5', 'cuatro': '4',
+        'tres': '3', 'dos': '2', 'uno': '1', 'cero': '0',
+        'noventa': '90', 'ochenta': '80', 'setenta': '70', 'sesenta': '60',
+        'cincuenta': '50', 'cuarenta': '40', 'treinta': '30',
+        'doscientos': '200', 'ciento': '100', 'cien': '100', 'quinientos': '500'
+    }
+    for word, num in words_to_num.items():
+        t = re.sub(rf'\b{word}\b', num, t)
+        
+    return t
+
 class CommandRequest(BaseModel):
     transcript: str = Field(..., description="Texto reconocido por voz o chat", example="10N-AI cotizar precio de aguacate")
     personality: str = Field("d10s", description="Personalidad del asistente: 'd10s' (Messi) o 'cr7' (Cristiano)", example="d10s")
+    history: Optional[List[Dict[str, Any]]] = Field(default=None, description="Historial de mensajes previos para memoria contextual estilo Gemini")
 
 @router.post("/process")
 def process_voice_command(payload: CommandRequest):
     """
-    Interpreta el comando de voz o texto del usuario.
-    Si el usuario no especifica parámetros completos, abre el panel interactivo
-    para que pueda ajustar las variables libremente.
-    Si especifica parámetros numéricos, los extrae con NLP y calcula la respuesta en tiempo real.
+    Interpreta el comando de voz o texto del usuario con normalización fonética y memoria de contexto.
     """
-    texto = payload.transcript.lower().strip()
+    raw_texto = payload.transcript.strip()
+    texto = normalize_spoken_spanish(raw_texto)
     modo = payload.personality.lower()
     es_d10s = (modo == "d10s")
+
 
     prefijo = "Che, mirá:" if es_d10s else "¡Siuuu, Comandante!"
     sufijo = "Todo listo, hermano." if es_d10s else "¡Objetivo cumplido con máxima precisión!"
@@ -449,6 +488,32 @@ def process_voice_command(payload: CommandRequest):
             "has_prediction": False,
             "comando_original": payload.transcript,
             "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 11. MEMORIA CONVERSACIONAL (Continuación de turno previo estilo Gemini)
+    # =========================================================================
+    last_model = None
+    last_params = {}
+    if payload.history:
+        for turn in reversed(payload.history):
+            if isinstance(turn, dict) and turn.get("interactive_model"):
+                last_model = turn.get("interactive_model")
+                last_params = turn.get("params") or {}
+                break
+
+    if last_model and any(w in texto for w in ["ahora", "cambia", "pon", "ponele", "ajusta", "con", "y si", "valor"]):
+        num_matches = re.findall(r'(\d+(?:\.\d+)?)', texto)
+        msg = f"{prefijo} Recordando nuestro contexto previo de **{last_model.upper()}**, ajusté el panel con los parámetros actualizados. {sufijo}"
+        return {
+            "success": True,
+            "intencion": f"continuacion_{last_model}",
+            "interactive_model": last_model,
+            "params": last_params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": msg,
             "datos": None
         }
 

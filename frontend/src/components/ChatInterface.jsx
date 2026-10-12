@@ -3,25 +3,44 @@ import { Send, Mic, Sparkles, User, Volume2, VolumeX, Camera, Image, X, RefreshC
 import confetti from 'canvas-confetti';
 import ModelSimulatorCard from './ModelSimulatorCard';
 
-export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setIsListening }) {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'assistant',
-      text: persona === 'd10s' 
-        ? "Hola, ¿cómo andás? Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, la calidad de un vino, precio de aguacates, retención de clientes o riesgo de salud. Podés seleccionar una opción abajo para ajustar los parámetros o escribirme directamente."
-        : "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      interactiveModel: null,
-      modelParams: null,
-      modelResult: null,
-      isExecuting: false
-    }
-  ]);
+export default function ChatInterface({
+  persona,
+  chatId,
+  initialMessages,
+  onUpdateMessages,
+  isSpeaking,
+  setIsSpeaking,
+  isListening,
+  setIsListening,
+  detectedEmotion
+}) {
+  const [messages, setMessages] = useState(() => {
+    if (initialMessages && initialMessages.length > 0) return initialMessages;
+    return [
+      {
+        id: 1,
+        sender: 'assistant',
+        text: persona === 'd10s' 
+          ? "Hola, ¿cómo andás? Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, la calidad de un vino, precio de aguacates, retención de clientes o riesgo de salud. Podés seleccionar una opción abajo para ajustar los parámetros o escribirme directamente."
+          : "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        interactiveModel: null,
+        modelParams: null,
+        modelResult: null,
+        isExecuting: false
+      }
+    ];
+  });
 
   const [inputVal, setInputVal] = useState('');
   const [loading, setLoading] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Reconocimiento de voz avanzado & dialecto
+  const [voiceDialect, setVoiceDialect] = useState('es-419'); // 'es-419' (LatAm universal), 'es-CR', 'es-ES'
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const recognitionRef = useRef(null);
+  const silenceTimerRef = useRef(null);
 
   // Estados para cámara y adjuntos
   const [showCameraMenu, setShowCameraMenu] = useState(false);
@@ -41,6 +60,17 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading, liveCameraActive]);
+
+  // Sincronizar mensajes localmente y con el storage de la conversación
+  const setMessagesAndSync = (updater, autoTitle = null) => {
+    setMessages(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (onUpdateMessages) {
+        onUpdateMessages(next, autoTitle);
+      }
+      return next;
+    });
+  };
 
   // Manejar encendido de cámara en tiempo real
   const openLiveCamera = async () => {
@@ -92,7 +122,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
         image: base64Data,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, userMsg]);
+      setMessagesAndSync(prev => [...prev, userMsg]);
       setLoading(true);
 
       // Enviar a la API de visión local
@@ -132,7 +162,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
         image: base64Data,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, userMsg]);
+      setMessagesAndSync(prev => [...prev, userMsg]);
       setLoading(true);
 
       try {
@@ -196,7 +226,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
       modelResult: null,
       isExecuting: false
     };
-    setMessages(prev => [...prev, assistantMsg]);
+    setMessagesAndSync(prev => [...prev, assistantMsg]);
 
     // Respuesta hablada
     if (soundEnabled && 'speechSynthesis' in window) {
@@ -212,12 +242,27 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
     }
   };
 
-  // Enviar mensaje de texto al backend
+  // Detener reconocimiento de voz de manera limpia
+  const stopListening = () => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
+    setIsListening(false);
+    setInterimTranscript('');
+  };
+
+  // Enviar mensaje de texto o voz procesada al backend con memoria conversacional
   const handleSendMessage = async (textToSend) => {
     const query = (textToSend || inputVal).trim();
     if (!query || loading) return;
 
+    if (isListening) stopListening();
+
     setInputVal('');
+    setInterimTranscript('');
     const userMsg = {
       id: Date.now(),
       sender: 'user',
@@ -225,14 +270,27 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const isFirstUserMessage = messages.filter(m => m.sender === 'user').length === 0;
+    setMessagesAndSync(prev => [...prev, userMsg], isFirstUserMessage ? query : null);
     setLoading(true);
 
     try {
+      // Memoria de conversación: recopilamos los turnos previos con sus parámetros
+      const historyPayload = messages.slice(-8).map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        text: m.text,
+        interactive_model: m.interactiveModel || null,
+        params: m.modelParams || null
+      }));
+
       const res = await fetch('/api/command/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: query, personality: persona })
+        body: JSON.stringify({
+          transcript: query,
+          personality: persona,
+          history: historyPayload
+        })
       });
 
       const data = await res.json();
@@ -249,7 +307,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
         isExecuting: false
       };
 
-      setMessages(prev => [...prev, assistantMsg]);
+      setMessagesAndSync(prev => [...prev, assistantMsg]);
 
       if (data.intencion && data.interactive_model) {
         confetti({
@@ -274,7 +332,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
 
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, {
+      setMessagesAndSync(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'assistant',
         text: "Error comunicando con el núcleo 10N-AI.",
@@ -292,7 +350,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
   // Función para ejecutar inferencia interactiva en tiempo real desde el ModelSimulatorCard
   const executeModelPrediction = async (msgId, modelType, currentParams) => {
     try {
-      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isExecuting: true } : m));
+      setMessagesAndSync(prev => prev.map(m => m.id === msgId ? { ...m, isExecuting: true } : m));
 
       const endpoint = `/api/predict/${modelType}`;
       const res = await fetch(endpoint, {
@@ -345,7 +403,7 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
           : `¡Proyección bursátil completada! Precio de cierre S&P 500: $${result.precio_cierre_usd} USD.`;
       }
 
-      setMessages(prev => prev.map(m => {
+      setMessagesAndSync(prev => prev.map(m => {
         if (m.id === msgId) {
           return {
             ...m,
@@ -378,38 +436,95 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
 
     } catch (err) {
       console.error("Error executing model prediction:", err);
-      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isExecuting: false } : m));
+      setMessagesAndSync(prev => prev.map(m => m.id === msgId ? { ...m, isExecuting: false } : m));
     }
   };
 
-  // Reconocimiento de voz por micrófono
+  // Reconocimiento de voz continuo con visualización en tiempo real y debounce inteligente
   const handleMicClick = () => {
+    if (isListening) {
+      stopListening();
+      if (inputVal.trim()) {
+        handleSendMessage(inputVal.trim());
+      }
+      return;
+    }
+
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert("Tu navegador no soporta Web Speech API. Usá Google Chrome.");
+      alert("Tu navegador no soporta Web Speech API. Por favor utilizá Google Chrome o Microsoft Edge.");
       return;
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'es-CR';
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognitionRef.current = recognition;
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event) => {
-      const text = event.results[0][0].transcript;
-      setIsListening(false);
-      handleSendMessage(text);
+    recognition.lang = voiceDialect;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    let accumulatedFinal = '';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setInterimTranscript('');
     };
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          accumulatedFinal += event.results[i][0].transcript + ' ';
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+
+      const fullCandidate = (accumulatedFinal + interim).trim();
+      setInputVal(fullCandidate);
+      setInterimTranscript(interim || accumulatedFinal.trim());
+
+      // Debounce de silencio: Si el usuario se queda en silencio por 1.8 segundos, auto-enviar
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = setTimeout(() => {
+        if (fullCandidate) {
+          stopListening();
+          handleSendMessage(fullCandidate);
+        }
+      }, 1800);
+    };
+
+    recognition.onerror = (event) => {
+      console.warn("Speech recognition error:", event.error);
+      if (event.error === 'not-allowed') {
+        alert("Permiso de micrófono bloqueado. Por favor permití el acceso al micrófono en el navegador.");
+      }
+      setIsListening(false);
+      setInterimTranscript('');
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setInterimTranscript('');
+    };
 
     try {
       recognition.start();
     } catch (e) {
+      console.error("Error al iniciar recognition:", e);
       setIsListening(false);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+    };
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col h-full min-h-0 w-full relative">
@@ -423,16 +538,33 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
           </span>
         </div>
 
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] transition-all ${
-            soundEnabled ? 'bg-slate-900 border-slate-700 text-slate-300' : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
-          }`}
-          title="Activar/desactivar respuesta hablada"
-        >
-          {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-rose-400" />}
-          <span>{soundEnabled ? 'VOZ: ON' : 'VOZ: OFF'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* SELECTOR DE DIALECTO DE MICRÓFONO */}
+          <div className="hidden sm:flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg text-[11px] font-mono text-slate-400">
+            <span className="text-[10px] text-slate-500 font-bold uppercase">MIC:</span>
+            <select
+              value={voiceDialect}
+              onChange={(e) => setVoiceDialect(e.target.value)}
+              className="bg-transparent text-slate-300 focus:outline-none cursor-pointer text-[11px]"
+              title="Acento del reconocimiento de voz"
+            >
+              <option value="es-419" className="bg-slate-950 text-slate-200">LatAm (es-419)</option>
+              <option value="es-CR" className="bg-slate-950 text-slate-200">Costa Rica (es-CR)</option>
+              <option value="es-ES" className="bg-slate-950 text-slate-200">España (es-ES)</option>
+            </select>
+          </div>
+
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] transition-all ${
+              soundEnabled ? 'bg-slate-900 border-slate-700 text-slate-300' : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+            }`}
+            title="Activar/desactivar respuesta hablada"
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-rose-400" />}
+            <span>{soundEnabled ? 'VOZ: ON' : 'VOZ: OFF'}</span>
+          </button>
+        </div>
       </div>
 
       {/* MODAL INLINE DE CÁMARA WEB EN TIEMPO REAL */}
@@ -624,6 +756,52 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
 
       {/* BARRA DE ENTRADA CON CÁMARA Y MICRÓFONO */}
       <div className="shrink-0 p-4 pt-2 pb-4 relative w-full">
+
+        {/* BANNER ANIMADO DE GRABACIÓN DE VOZ EN TIEMPO REAL */}
+        {isListening && (
+          <div className="mb-2 p-3 rounded-2xl bg-slate-950/95 border border-cyan-500/40 backdrop-blur-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 shadow-[0_0_25px_rgba(6,182,212,0.25)]">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="relative flex items-center justify-center shrink-0">
+                <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping absolute"></span>
+                <span className="w-3 h-3 rounded-full bg-rose-500"></span>
+              </div>
+              <div className="flex items-center gap-1 h-5 px-1 shrink-0">
+                <span className="w-1 h-3 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                <span className="w-1 h-5 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                <span className="w-1 h-2 bg-cyan-400 rounded-full animate-bounce"></span>
+                <span className="w-1 h-6 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.2s]"></span>
+                <span className="w-1 h-3 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.35s]"></span>
+              </div>
+              <p className="text-xs text-slate-200 truncate font-mono flex-1">
+                {interimTranscript ? (
+                  <span className="text-cyan-300 font-sans italic font-medium">"{interimTranscript}"</span>
+                ) : (
+                  <span className="text-slate-400 font-sans">Escuchando micrófono ({voiceDialect})... Di un comando o consulta</span>
+                )}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  stopListening();
+                  if (inputVal.trim()) handleSendMessage(inputVal.trim());
+                }}
+                className="px-3 py-1 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-500/30 text-xs font-bold font-rajdhani transition-all"
+              >
+                Detener y Enviar
+              </button>
+              <button
+                type="button"
+                onClick={stopListening}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition-all"
+                title="Cancelar micrófono"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* MENÚ DE OPCIONES DE CÁMARA */}
         {showCameraMenu && (
@@ -682,12 +860,14 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
           <button
             type="button"
             onClick={handleMicClick}
-            className={`p-3 rounded-xl transition-all duration-300 ${
-              isD10S
-                ? 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 active:scale-95'
-                : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 active:scale-95'
+            className={`p-3 rounded-xl transition-all duration-300 relative ${
+              isListening
+                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/60 shadow-[0_0_20px_rgba(244,63,94,0.4)] animate-pulse'
+                : isD10S
+                  ? 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 active:scale-95'
+                  : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 active:scale-95'
             }`}
-            title="Hablar al micrófono (Speech-to-Text)"
+            title={isListening ? "Detener grabación de voz" : "Hablar al micrófono (Speech-to-Text)"}
           >
             <Mic className="w-5 h-5" />
           </button>
