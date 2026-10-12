@@ -323,6 +323,26 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
         feedback = isD10S
           ? `Evaluación de salud: ${result.diagnostico} con ${result.probabilidad_evento_vascular}% de probabilidad. ${result.recomendacion}`
           : `¡Evaluación de salud completada! ${result.diagnostico} con ${result.probabilidad_evento_vascular}%. ${result.recomendacion}`;
+      } else if (modelType === 'bodyfat') {
+        feedback = isD10S
+          ? `Grasa corporal estimada en ${result.grasa_corporal_pct}%. Categoría: ${result.categoria}.`
+          : `¡Estimación precisa! Porcentaje de grasa corporal: ${result.grasa_corporal_pct}%, nivel ${result.categoria}.`;
+      } else if (modelType === 'hepatitis') {
+        feedback = isD10S
+          ? `Diagnóstico hepático: ${result.diagnostico} con ${result.probabilidad_patologia}% de probabilidad.`
+          : `¡Análisis completado! Diagnóstico: ${result.diagnostico} con ${result.probabilidad_patologia}% de certeza.`;
+      } else if (modelType === 'cirrosis') {
+        feedback = isD10S
+          ? `Estadificación de cirrosis: ${result.nombre_estadio} (${result.severidad}) con ${result.confidence}% de certeza.`
+          : `¡Clasificación clínica lista! ${result.nombre_estadio} (${result.severidad}) con ${result.confidence}% de certeza.`;
+      } else if (modelType === 'bitcoin') {
+        feedback = isD10S
+          ? `Cotización de Bitcoin proyectada: $${Number(result.precio_cierre_usd).toLocaleString()} USD con tendencia ${result.tendencia}.`
+          : `¡Proyección de Bitcoin lista! Precio de cierre: $${Number(result.precio_cierre_usd).toLocaleString()} USD (${result.tendencia}).`;
+      } else if (modelType === 'sp500') {
+        feedback = isD10S
+          ? `Acción S&P 500 proyectada en $${result.precio_cierre_usd} USD con tendencia ${result.tendencia}.`
+          : `¡Proyección bursátil completada! Precio de cierre S&P 500: $${result.precio_cierre_usd} USD.`;
       }
 
       setMessages(prev => prev.map(m => {
@@ -563,6 +583,41 @@ export default function ChatInterface({ persona, isSpeaking, setIsSpeaking, setI
           >
             <span>🧠</span>
             <span>Riesgo de Salud</span>
+          </button>
+          <button
+            onClick={() => handleSendMessage("Calcular porcentaje de grasa corporal")}
+            className="text-xs font-rajdhani font-semibold px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow-sm"
+          >
+            <span>🏃</span>
+            <span>Grasa Corporal</span>
+          </button>
+          <button
+            onClick={() => handleSendMessage("Diagnosticar prueba de hepatitis C")}
+            className="text-xs font-rajdhani font-semibold px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow-sm"
+          >
+            <span>🧪</span>
+            <span>Hepatitis C</span>
+          </button>
+          <button
+            onClick={() => handleSendMessage("Evaluar estadio de cirrosis hepática")}
+            className="text-xs font-rajdhani font-semibold px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow-sm"
+          >
+            <span>🏥</span>
+            <span>Cirrosis</span>
+          </button>
+          <button
+            onClick={() => handleSendMessage("Predecir cotización de Bitcoin")}
+            className="text-xs font-rajdhani font-semibold px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow-sm"
+          >
+            <span>₿</span>
+            <span>Bitcoin</span>
+          </button>
+          <button
+            onClick={() => handleSendMessage("Proyectar precio de acciones S&P 500")}
+            className="text-xs font-rajdhani font-semibold px-3 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow-sm"
+          >
+            <span>📈</span>
+            <span>S&P 500</span>
           </button>
         </div>
       </div>

@@ -327,13 +327,139 @@ def process_voice_command(payload: CommandRequest):
             }
 
     # =========================================================================
-    # 6. Saludo General / Consulta libre
+    # 6. GRASA CORPORAL / COMPOSICIÓN ANTROPOMÉTRICA
+    # =========================================================================
+    elif any(k in texto for k in ["grasa", "bodyfat", "corporal", "pliegue", "antropom"]):
+        params = {
+            "age": 29.0, "weight": 154.25, "height": 67.75, "neck": 36.2,
+            "chest": 93.1, "abdomen": 85.2, "hip": 94.5, "thigh": 59.0,
+            "knee": 37.3, "ankle": 21.9, "biceps": 32.0, "forearm": 27.4,
+            "wrist": 17.1
+        }
+        res = ml_service.predict_bodyfat(**params)
+        if es_d10s:
+            mensaje = "¡Ajustemos la condición física! Modificá las medidas antropométricas en el panel interactivo para calcular tu porcentaje de grasa corporal:"
+        else:
+            mensaje = "¡Rendimiento físico de élite! Configura tus medidas en el panel para estimar tu porcentaje exacto de grasa corporal:"
+
+        return {
+            "success": True,
+            "intencion": "estimacion_grasa_corporal",
+            "interactive_model": "bodyfat",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 7. HEPATITIS C / PERFIL BIOQUÍMICO
+    # =========================================================================
+    elif any(k in texto for k in ["hepatitis", "hígado", "higado", "hepátic", "hepatic", "transaminasa", "alt", "ast"]):
+        params = {
+            "age": 35.0, "sex": "m", "alb": 38.5, "alp": 52.5, "alt": 7.7,
+            "ast": 22.1, "bil": 7.5, "che": 6.93, "chol": 3.23, "crea": 106.0,
+            "ggt": 12.1, "prot": 69.0
+        }
+        if es_d10s:
+            mensaje = "¡Chequeo hepático iniciado! Modificá los biomarcadores séricos en el panel para evaluar si hay indicios de patología hepática:"
+        else:
+            mensaje = "¡Diagnóstico bioquímico de Hepatitis C activado! Ingresa los valores de laboratorio en el panel para evaluar el estado hepático:"
+
+        return {
+            "success": True,
+            "intencion": "diagnostico_hepatitis",
+            "interactive_model": "hepatitis",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 8. CIRROSIS HEPÁTICA / ESTADIFICACIÓN HISTOLÓGICA
+    # =========================================================================
+    elif any(k in texto for k in ["cirrosis", "estadio", "fibrosis", "ascitis", "hepatomegalia"]):
+        params = {
+            "n_days": 1000.0, "age_years": 50.0, "sex": "F", "bilirubin": 1.5,
+            "cholesterol": 260.0, "albumin": 3.4, "copper": 70.0, "alk_phos": 1200.0,
+            "sgot": 110.0, "tryglicerides": 115.0, "platelets": 250.0, "prothrombin": 10.6,
+            "drug": "D-penicillamine", "ascites": "N", "hepatomegaly": "N",
+            "spiders": "N", "edema": "N", "status": "C"
+        }
+        if es_d10s:
+            mensaje = "¡Estadificación de cirrosis lista! Ajustá los indicadores clínicos en el panel para clasificar el estadio histológico (1 al 4):"
+        else:
+            mensaje = "¡Protocolo clínico de cirrosis en línea! Configura los biomarcadores en el panel para estadificar el avance de la afección:"
+
+        return {
+            "success": True,
+            "intencion": "estadificacion_cirrosis",
+            "interactive_model": "cirrosis",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 9. BITCOIN / PROYECCIÓN FINANCIERA CRIPTO
+    # =========================================================================
+    elif any(k in texto for k in ["bitcoin", "btc", "cripto", "crypto", "blockchain"]):
+        params = {
+            "open": 2500.0, "high": 2580.0, "low": 2470.0,
+            "volume": 1500000000.0, "market_cap": 41000000000.0
+        }
+        if es_d10s:
+            mensaje = "¡Mercado cripto listo! Ajustá los precios de apertura, máximos y volumen en el panel para proyectar el precio de cierre de Bitcoin:"
+        else:
+            mensaje = "¡Trading inteligente activado! Configura las variables del mercado en el panel para predecir el valor de cierre de Bitcoin:"
+
+        return {
+            "success": True,
+            "intencion": "prediccion_bitcoin",
+            "interactive_model": "bitcoin",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 10. S&P 500 / ACCIONES BURSÁTILES
+    # =========================================================================
+    elif any(k in texto for k in ["sp500", "s&p", "acciones", "bolsa", "wall street", "accion", "stock"]):
+        params = {
+            "open": 150.0, "high": 152.5, "low": 149.0, "volume": 1200000.0
+        }
+        if es_d10s:
+            mensaje = "¡Panel bursátil abierto! Configurá los precios del S&P 500 para estimar la cotización de cierre de la acción:"
+        else:
+            mensaje = "¡Mercados financieros internacionales! Ajusta los valores de cotización en el panel para predecir el cierre del S&P 500:"
+
+        return {
+            "success": True,
+            "intencion": "prediccion_sp500",
+            "interactive_model": "sp500",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # Saludo General / Consulta libre
     # =========================================================================
     else:
         if es_d10s:
-            saludo = "¡Hola che! Soy el Core D10S de 10N-AI. Preguntame lo que necesites: evaluar calidad de vinos, cotizar autos, analizar retención de clientes, precio de aguacates o riesgo de salud. También podés encender tu cámara para que analice tus emociones. ¿Qué querés consultar?"
+            saludo = "¡Hola che! Soy el Core D10S de 10N-AI. Preguntame lo que necesites sobre cualquiera de los 10 modelos de IA: calidad de vino, tasación de autos, fuga de clientes, precio de aguacates, riesgo de infarto cerebral, grasa corporal, diagnóstico de hepatitis, cirrosis, cotización de Bitcoin o acciones del S&P 500. También podés encender tu cámara para analizar emociones. ¿Qué querés consultar?"
         else:
-            saludo = "¡Siuuu! Core CR7 en línea. Máxima precisión para tus consultas de mercado, calidad de vino, tasación de autos, retención de clientes y análisis con visión artificial. Dime en qué te puedo ayudar:"
+            saludo = "¡Siuuu! Core CR7 en línea. Máxima precisión y potencia para tus consultas con los 10 modelos de Inteligencia Artificial (autos, vino, clientes, aguacate, salud ACV, grasa corporal, hepatitis, cirrosis, Bitcoin y S&P 500) y visión artificial. Dime en qué te puedo ayudar:"
 
         return {
             "success": True,
@@ -345,3 +471,4 @@ def process_voice_command(payload: CommandRequest):
             "respuesta_texto": saludo,
             "datos": None
         }
+

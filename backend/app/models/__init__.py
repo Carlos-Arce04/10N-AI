@@ -29,3 +29,29 @@ from .stroke_api_models import (
     StrokeHealthResponse,
     StrokeOptionsResponse
 )
+from .bodyfat_api_models import (
+    BodyFatPredictionRequest,
+    BodyFatPredictionResponse,
+    BodyFatHealthResponse
+)
+from .hepatitis_api_models import (
+    HepatitisPredictionRequest,
+    HepatitisPredictionResponse,
+    HepatitisHealthResponse
+)
+from .cirrhosis_api_models import (
+    CirrhosisPredictionRequest,
+    CirrhosisPredictionResponse,
+    CirrhosisHealthResponse
+)
+from .bitcoin_api_models import (
+    BitcoinPredictionRequest,
+    BitcoinPredictionResponse,
+    BitcoinHealthResponse
+)
+from .sp500_api_models import (
+    SP500PredictionRequest,
+    SP500PredictionResponse,
+    SP500HealthResponse
+)
+

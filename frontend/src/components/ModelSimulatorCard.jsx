@@ -83,6 +83,73 @@ export default function ModelSimulatorCard({
           residence_type: 'Urban',
           smoking_status: 'smokes'
         };
+      case 'bodyfat':
+        return {
+          age: 29.0,
+          weight: 154.25,
+          height: 67.75,
+          neck: 36.2,
+          chest: 93.1,
+          abdomen: 85.2,
+          hip: 94.5,
+          thigh: 59.0,
+          knee: 37.3,
+          ankle: 21.9,
+          biceps: 32.0,
+          forearm: 27.4,
+          wrist: 17.1
+        };
+      case 'hepatitis':
+        return {
+          age: 35.0,
+          sex: 'm',
+          alb: 38.5,
+          alp: 52.5,
+          alt: 7.7,
+          ast: 22.1,
+          bil: 7.5,
+          che: 6.93,
+          chol: 3.23,
+          crea: 106.0,
+          ggt: 12.1,
+          prot: 69.0
+        };
+      case 'cirrosis':
+        return {
+          n_days: 1000.0,
+          age_years: 50.0,
+          sex: 'F',
+          bilirubin: 1.5,
+          cholesterol: 260.0,
+          albumin: 3.4,
+          copper: 70.0,
+          alk_phos: 1200.0,
+          sgot: 110.0,
+          tryglicerides: 115.0,
+          platelets: 250.0,
+          prothrombin: 10.6,
+          drug: 'D-penicillamine',
+          ascites: 'N',
+          hepatomegaly: 'N',
+          spiders: 'N',
+          edema: 'N',
+          status: 'C'
+        };
+      case 'bitcoin':
+        return {
+          open: 2500.0,
+          high: 2580.0,
+          low: 2470.0,
+          volume: 1500000000.0,
+          market_cap: 41000000000.0
+        };
+      case 'sp500':
+        return {
+          open: 150.0,
+          high: 152.5,
+          low: 149.0,
+          volume: 1200000.0
+        };
       default:
         return {};
     }
@@ -123,6 +190,11 @@ export default function ModelSimulatorCard({
             {modelType === 'churn' && '👥 ANÁLISIS DE RETENCIÓN DE CLIENTES'}
             {modelType === 'aguacate' && '🥑 PROYECCIÓN DE PRECIO DEL AGUACATE'}
             {modelType === 'stroke' && '🧠 EVALUACIÓN DE RIESGO DE ACV'}
+            {modelType === 'bodyfat' && '🏃 ESTIMACIÓN DE GRASA CORPORAL'}
+            {modelType === 'hepatitis' && '🧪 DIAGNÓSTICO DE HEPATITIS C'}
+            {modelType === 'cirrosis' && '🏥 ESTADIFICACIÓN DE CIRROSIS HEPÁTICA'}
+            {modelType === 'bitcoin' && '₿ PREDICCIÓN DE PRECIO DE BITCOIN'}
+            {modelType === 'sp500' && '📈 PREDICCIÓN DE ACCIONES S&P 500'}
           </span>
         </div>
         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 hidden sm:inline">
@@ -524,6 +596,278 @@ export default function ModelSimulatorCard({
           </div>
         )}
 
+        {/* ===================== CASO 6: GRASA CORPORAL ===================== */}
+        {modelType === 'bodyfat' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Edad (años):</span>
+                <span className="font-mono font-bold text-white">{params.age}</span>
+              </div>
+              <input type="range" min="18" max="80" step="1" value={params.age}
+                onChange={(e) => updateParam('age', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Peso (lbs):</span>
+                <span className="font-mono font-bold text-white">{params.weight}</span>
+              </div>
+              <input type="range" min="100" max="300" step="1" value={params.weight}
+                onChange={(e) => updateParam('weight', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Abdomen (cm):</span>
+                <span className="font-mono font-bold text-white">{params.abdomen}</span>
+              </div>
+              <input type="range" min="60" max="140" step="0.5" value={params.abdomen}
+                onChange={(e) => updateParam('abdomen', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Pecho (cm):</span>
+                <span className="font-mono font-bold text-white">{params.chest}</span>
+              </div>
+              <input type="range" min="70" max="130" step="0.5" value={params.chest}
+                onChange={(e) => updateParam('chest', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Cadera (cm):</span>
+                <span className="font-mono font-bold text-white">{params.hip}</span>
+              </div>
+              <input type="range" min="70" max="130" step="0.5" value={params.hip}
+                onChange={(e) => updateParam('hip', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Bíceps (cm):</span>
+                <span className="font-mono font-bold text-white">{params.biceps}</span>
+              </div>
+              <input type="range" min="20" max="50" step="0.5" value={params.biceps}
+                onChange={(e) => updateParam('biceps', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+          </div>
+        )}
+
+        {/* ===================== CASO 7: HEPATITIS C ===================== */}
+        {modelType === 'hepatitis' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 flex items-center justify-between">
+              <span className="text-slate-400">Sexo:</span>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => updateParam('sex', 'm')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${params.sex === 'm' ? 'bg-cyan-500 text-black font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                  Masc (M)
+                </button>
+                <button type="button" onClick={() => updateParam('sex', 'f')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${params.sex === 'f' ? 'bg-rose-500 text-white font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                  Fem (F)
+                </button>
+              </div>
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Edad:</span>
+                <span className="font-mono font-bold text-white">{params.age}</span>
+              </div>
+              <input type="range" min="18" max="80" step="1" value={params.age}
+                onChange={(e) => updateParam('age', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">ALT (U/L):</span>
+                <span className="font-mono font-bold text-white">{params.alt}</span>
+              </div>
+              <input type="range" min="2" max="150" step="1" value={params.alt}
+                onChange={(e) => updateParam('alt', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">AST (U/L):</span>
+                <span className="font-mono font-bold text-white">{params.ast}</span>
+              </div>
+              <input type="range" min="5" max="200" step="1" value={params.ast}
+                onChange={(e) => updateParam('ast', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Bilirrubina:</span>
+                <span className="font-mono font-bold text-white">{params.bil}</span>
+              </div>
+              <input type="range" min="1" max="100" step="0.5" value={params.bil}
+                onChange={(e) => updateParam('bil', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">GGT (U/L):</span>
+                <span className="font-mono font-bold text-white">{params.ggt}</span>
+              </div>
+              <input type="range" min="5" max="250" step="1" value={params.ggt}
+                onChange={(e) => updateParam('ggt', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+          </div>
+        )}
+
+        {/* ===================== CASO 8: CIRROSIS HEPÁTICA ===================== */}
+        {modelType === 'cirrosis' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Edad (años):</span>
+                <span className="font-mono font-bold text-white">{params.age_years}</span>
+              </div>
+              <input type="range" min="20" max="80" step="1" value={params.age_years}
+                onChange={(e) => updateParam('age_years', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Bilirrubina (mg/dl):</span>
+                <span className="font-mono font-bold text-white">{params.bilirubin}</span>
+              </div>
+              <input type="range" min="0.3" max="25.0" step="0.2" value={params.bilirubin}
+                onChange={(e) => updateParam('bilirubin', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Albúmina (g/dl):</span>
+                <span className="font-mono font-bold text-white">{params.albumin}</span>
+              </div>
+              <input type="range" min="1.8" max="5.0" step="0.1" value={params.albumin}
+                onChange={(e) => updateParam('albumin', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Días Seguimiento:</span>
+                <span className="font-mono font-bold text-white">{params.n_days}</span>
+              </div>
+              <input type="range" min="100" max="4500" step="50" value={params.n_days}
+                onChange={(e) => updateParam('n_days', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Plaquetas (k/ml):</span>
+                <span className="font-mono font-bold text-white">{params.platelets}</span>
+              </div>
+              <input type="range" min="50" max="600" step="10" value={params.platelets}
+                onChange={(e) => updateParam('platelets', parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 cursor-pointer" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 flex items-center justify-between">
+              <span className="text-slate-400">Ascitis:</span>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => updateParam('ascites', 'Y')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${params.ascites === 'Y' ? 'bg-rose-500 text-white font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                  Sí
+                </button>
+                <button type="button" onClick={() => updateParam('ascites', 'N')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${params.ascites === 'N' ? 'bg-emerald-500 text-black font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===================== CASO 9: BITCOIN ===================== */}
+        {modelType === 'bitcoin' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Precio Apertura ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.open).toLocaleString()}</span>
+              </div>
+              <input type="number" value={params.open}
+                onChange={(e) => updateParam('open', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Máximo Diario ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.high).toLocaleString()}</span>
+              </div>
+              <input type="number" value={params.high}
+                onChange={(e) => updateParam('high', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Mínimo Diario ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.low).toLocaleString()}</span>
+              </div>
+              <input type="number" value={params.low}
+                onChange={(e) => updateParam('low', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Volumen Diario ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.volume).toLocaleString()}</span>
+              </div>
+              <input type="number" value={params.volume}
+                onChange={(e) => updateParam('volume', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+          </div>
+        )}
+
+        {/* ===================== CASO 10: S&P 500 ===================== */}
+        {modelType === 'sp500' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Apertura ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.open).toFixed(2)}</span>
+              </div>
+              <input type="number" step="0.1" value={params.open}
+                onChange={(e) => updateParam('open', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Máximo Intradiario ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.high).toFixed(2)}</span>
+              </div>
+              <input type="number" step="0.1" value={params.high}
+                onChange={(e) => updateParam('high', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Mínimo Intradiario ($ USD):</span>
+                <span className="font-mono font-bold text-white">${Number(params.low).toFixed(2)}</span>
+              </div>
+              <input type="number" step="0.1" value={params.low}
+                onChange={(e) => updateParam('low', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+            <div className="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60">
+              <div className="flex justify-between mb-1">
+                <span className="text-slate-400">Volumen Negociado:</span>
+                <span className="font-mono font-bold text-white">{Number(params.volume).toLocaleString()}</span>
+              </div>
+              <input type="number" value={params.volume}
+                onChange={(e) => updateParam('volume', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-white font-mono" />
+            </div>
+          </div>
+        )}
+
         {/* BOTÓN DE CALCULAR */}
         <div className="pt-2">
           <button
@@ -642,6 +986,91 @@ export default function ModelSimulatorCard({
                 <p className="text-[11px] text-slate-300">
                   📋 {initialResult.recomendacion}
                 </p>
+              </div>
+            )}
+
+            {/* GRASA CORPORAL RESULTADO */}
+            {modelType === 'bodyfat' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-sm text-cyan-300">
+                    {initialResult.categoria}
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
+                    {initialResult.grasa_corporal_pct}% Grasa Corporal
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  📊 {initialResult.interpretacion} ({initialResult.rango_saludable})
+                </p>
+              </div>
+            )}
+
+            {/* HEPATITIS RESULTADO */}
+            {modelType === 'hepatitis' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`font-bold text-xs sm:text-sm ${initialResult.patologia_detectada ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {initialResult.diagnostico}
+                  </span>
+                  <span className="font-mono text-xs font-bold text-slate-300">
+                    {initialResult.probabilidad_patologia}% Prob.
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  🔬 {initialResult.recomendacion}
+                </p>
+              </div>
+            )}
+
+            {/* CIRROSIS RESULTADO */}
+            {modelType === 'cirrosis' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-xs sm:text-sm text-amber-300">
+                    {initialResult.nombre_estadio}
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                    Severidad: {initialResult.severidad}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  🩺 {initialResult.interpretacion}
+                </p>
+              </div>
+            )}
+
+            {/* BITCOIN RESULTADO */}
+            {modelType === 'bitcoin' && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-slate-400 block text-[10px]">Precio Cierre Proyectado:</span>
+                  <span className="font-mono text-base font-black text-amber-300">
+                    ${Number(initialResult.precio_cierre_usd).toLocaleString()} USD
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-xs px-2 py-0.5 rounded font-mono font-bold ${initialResult.variacion_proyectada_pct >= 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
+                    {initialResult.tendencia} ({initialResult.variacion_proyectada_pct >= 0 ? '+' : ''}{initialResult.variacion_proyectada_pct}%)
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* S&P 500 RESULTADO */}
+            {modelType === 'sp500' && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-slate-400 block text-[10px]">Cotización Proyectada S&P 500:</span>
+                  <span className="font-mono text-base font-black text-cyan-300">
+                    ${Number(initialResult.precio_cierre_usd).toFixed(2)} USD
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-xs px-2 py-0.5 rounded font-mono font-bold ${initialResult.variacion_proyectada_pct >= 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
+                    {initialResult.tendencia} ({initialResult.variacion_proyectada_pct >= 0 ? '+' : ''}{initialResult.variacion_proyectada_pct}%)
+                  </span>
+                </div>
               </div>
             )}
 
