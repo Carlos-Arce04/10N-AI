@@ -1,29 +1,55 @@
 import React from 'react';
-import { Zap, Wifi, RotateCcw } from 'lucide-react';
+import { Zap, Wifi, RotateCcw, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 
-export default function Navbar({ persona, setPersona, backendOnline, latency, onResetChat }) {
+export default function Navbar({
+  persona,
+  setPersona,
+  backendOnline,
+  latency,
+  onResetChat,
+  onToggleSidebar,
+  sidebarOpen,
+  chatCount = 0
+}) {
   const isD10S = persona === 'd10s';
 
   return (
-    <header className="w-full px-6 py-3.5 border-b border-slate-800/80 backdrop-blur-xl bg-slate-950/70 sticky top-0 z-50 flex items-center justify-between">
+    <header className="w-full px-4 sm:px-6 py-3 border-b border-slate-800/80 backdrop-blur-xl bg-slate-950/70 sticky top-0 z-50 flex items-center justify-between">
       
-      {/* BRAND & LOGO */}
-      <div className="flex items-center gap-3">
+      {/* BRAND, LOGO & BOTÓN DE HISTORIAL */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        <button
+          onClick={onToggleSidebar}
+          className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 ${
+            sidebarOpen
+              ? (isD10S ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)]' : 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]')
+              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+          }`}
+          title="Historial de conversaciones (Estilo Gemini)"
+        >
+          {sidebarOpen ? <PanelLeftClose className="w-4 h-4 sm:w-5 sm:h-5" /> : <PanelLeftOpen className="w-4 h-4 sm:w-5 sm:h-5" />}
+          {chatCount > 0 && (
+            <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+              {chatCount}
+            </span>
+          )}
+        </button>
+
         <div className={`p-2 rounded-xl border transition-all ${
           isD10S 
             ? 'bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
             : 'bg-amber-500/10 border-amber-400 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
         }`}>
-          <Zap className="w-5 h-5 animate-pulse" />
+          <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
         </div>
-          <div>
-            <h1 className="font-orbitron text-lg font-black tracking-wider text-white">
-              10N-AI
-            </h1>
-            <p className="text-[11px] text-slate-400 font-rajdhani font-semibold tracking-wide hidden sm:block">
-              ASISTENTE INTELIGENTE MULTIMODAL
-            </p>
-          </div>
+        <div>
+          <h1 className="font-orbitron text-base sm:text-lg font-black tracking-wider text-white">
+            10N-AI
+          </h1>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-rajdhani font-semibold tracking-wide hidden sm:block">
+            ASISTENTE INTELIGENTE MULTIMODAL
+          </p>
+        </div>
       </div>
 
       {/* SELECTOR DUAL-CORE DE PERSONALIDAD */}

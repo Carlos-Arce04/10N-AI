@@ -18,6 +18,11 @@ from app.api.routes_wine import router as wine_router
 from app.api.routes_churn import router as churn_router
 from app.api.routes_avocado import router as avocado_router
 from app.api.routes_stroke import router as stroke_router
+from app.api.routes_bodyfat import router as bodyfat_router
+from app.api.routes_hepatitis import router as hepatitis_router
+from app.api.routes_cirrhosis import router as cirrhosis_router
+from app.api.routes_bitcoin import router as bitcoin_router
+from app.api.routes_sp500 import router as sp500_router
 
 app = FastAPI(
     title=API_TITLE,
@@ -39,12 +44,17 @@ app.include_router(vision_router)
 app.include_router(command_router)
 
 # Inclusión de routers modulares por modelo (arquitectura REST limpia)
-# 1. Rutas dedicadas por servicio: /api/aguacate, /api/vino, /api/auto, /api/churn, /api/stroke
+# 1. Rutas dedicadas por servicio: /api/aguacate, /api/vino, /api/auto, /api/churn, /api/stroke, /api/bodyfat, etc.
 app.include_router(avocado_router, prefix="/api")
 app.include_router(wine_router, prefix="/api")
 app.include_router(car_router, prefix="/api")
 app.include_router(churn_router, prefix="/api")
 app.include_router(stroke_router, prefix="/api")
+app.include_router(bodyfat_router, prefix="/api")
+app.include_router(hepatitis_router, prefix="/api")
+app.include_router(cirrhosis_router, prefix="/api")
+app.include_router(bitcoin_router, prefix="/api")
+app.include_router(sp500_router, prefix="/api")
 
 # Alias en inglés para aguacate (/api/avocado)
 app.include_router(avocado_router, prefix="/api", tags=["🥑 Avocado API (English Alias)"])
@@ -55,6 +65,12 @@ app.include_router(wine_router, prefix="/api/predict", include_in_schema=False)
 app.include_router(car_router, prefix="/api/predict", include_in_schema=False)
 app.include_router(churn_router, prefix="/api/predict", include_in_schema=False)
 app.include_router(stroke_router, prefix="/api/predict", include_in_schema=False)
+app.include_router(bodyfat_router, prefix="/api/predict", include_in_schema=False)
+app.include_router(hepatitis_router, prefix="/api/predict", include_in_schema=False)
+app.include_router(cirrhosis_router, prefix="/api/predict", include_in_schema=False)
+app.include_router(bitcoin_router, prefix="/api/predict", include_in_schema=False)
+app.include_router(sp500_router, prefix="/api/predict", include_in_schema=False)
+
 
 @app.get("/")
 def root():
@@ -88,6 +104,26 @@ def root():
                 "predict": "/api/stroke/predict",
                 "health": "/api/stroke/health",
                 "options": "/api/stroke/options"
+            },
+            "grasa_corporal": {
+                "predict": "/api/bodyfat/predict",
+                "health": "/api/bodyfat/health"
+            },
+            "hepatitis": {
+                "predict": "/api/hepatitis/predict",
+                "health": "/api/hepatitis/health"
+            },
+            "cirrosis": {
+                "predict": "/api/cirrosis/predict",
+                "health": "/api/cirrosis/health"
+            },
+            "bitcoin": {
+                "predict": "/api/bitcoin/predict",
+                "health": "/api/bitcoin/health"
+            },
+            "sp500": {
+                "predict": "/api/sp500/predict",
+                "health": "/api/sp500/health"
             }
         },
         "asistente_voz": "/api/command/process",

@@ -1,0 +1,216 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=cyan
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{10N-AI: Asistente Inteligente Multimodal}
+\lhead{ITCR - Campus San Carlos}
+\cfoot{\thepage}
+
+\begin{document}
+
+% ==============================================================================
+% 1. PORTADA
+% ==============================================================================
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\scshape\Large Instituto Tecnológico de Costa Rica \par}
+    {\scshape\large Campus Tecnológico Local San Carlos \par}
+    {\scshape\large Escuela de Ingeniería en Computación \par}
+    \vspace{1.5cm}
+    
+    {\huge\bfseries 10N-AI (Ten AI)\par}
+    \vspace{0.5cm}
+    {\Large\bfseries Asistente Inteligente Multimodal con Percepción Visual, Reconocimiento de Voz y Portafolio de 10 Modelos de Machine Learning\par}
+    \vspace{1.5cm}
+    
+    {\large\textbf{Proyecto I - Inteligencia Artificial}\par}
+    \vspace{2cm}
+    
+    \begin{minipage}{0.48\textwidth}
+        \begin{flushleft} \large
+            \textbf{Estudiantes:}\\
+            Carlos Arce\\
+            Joshua Picado
+        \end{flushleft}
+    \end{minipage}
+    \begin{minipage}{0.48\textwidth}
+        \begin{flushright} \large
+            \textbf{Profesor:}\\
+            Ing. Efrén Jiménez Delgado
+        \end{flushright}
+    \end{minipage}
+    
+    \vfill
+    {\large I Semestre, 2026 \par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+% 2. SOLUCIÓN PLANTEADA
+% ==============================================================================
+\section{Solución Planteada}
+
+El proyecto \textbf{10N-AI} (\textit{Ten AI}) es un asistente personal inteligente multimodal inspirado conceptualmente en arquitecturas tipo JARVIS. Su propósito es interactuar de manera natural con el usuario mediante flujos bidireccionales de audio y visión por computadora, canalizando consultas complejas hacia un cerebro analítico compuesto por un portafolio de diez modelos de aprendizaje automático (\textit{Machine Learning}).
+
+\subsection{Arquitectura Modular del Sistema}
+La solución se estructura en tres capas complementarias desacopladas:
+\begin{enumerate}
+    \item \textbf{Capa de Percepción Sensorial (Frontend HUD \& Cognitive APIs):}
+    \begin{itemize}
+        \item \textbf{Percepción Visual:} Captura fotogramas en tiempo real desde la cámara web del usuario para clasificar el estado anímico y las emociones faciales mediante la API de \textit{Azure Cognitive Services Face} (con sistema de contingencia heurística local).
+        \item \textbf{Percepción Auditiva (Speech-to-Text):} Transcribe instrucciones verbales emitidas en lenguaje natural utilizando \textit{Web Speech API} y servicios cognitivos de voz.
+        \item \textbf{Núcleo de Personalidades Duales:} Interfaz interactiva construida en React + Tailwind CSS con visualizador de partículas en 3D que implementa dos núcleos de diálogo: \textbf{Core D10S} (estilo reflexivo y creativo) y \textbf{Core CR7} (estilo disciplinado de alta exigencia).
+    \end{itemize}
+    \item \textbf{Capa de Orquestación y API REST (FastAPI):} Backend asíncrono de alto desempeño que expone los \textit{endpoints} para procesar comandos de voz, interpretar intenciones semánticas y servir inferencias de los modelos serializados en formato liviano (\texttt{.joblib}).
+    \item \textbf{Capa de Modelado Analítico (10 Modelos de ML):} Suite predictiva entrenada mediante cuadernos en Google Colab/Jupyter que abarca problemas biomédicos, financieros, de consumo y tasación de activos.
+\end{enumerate}
+
+% ==============================================================================
+% 3. ARQUITECTURAS DE ML
+% ==============================================================================
+\section{Arquitecturas de Aprendizaje Automático}
+
+Para la resolución de los diez problemas seleccionados, se implementaron algoritmos fundamentados en el estado del arte del aprendizaje supervisado:
+
+\subsection{Bosques Aleatorios (Random Forest)}
+El algoritmo rector de la solución es el ensamble de \textbf{Random Forest} \cite{breiman2001random}, tanto en su formulación de regresión (\textit{Random Forest Regressor}) como de clasificación (\textit{Random Forest Classifier}). 
+Matemáticamente, para un conjunto de entrenamiento $D = \{(x_1, y_1), \dots, (x_n, y_n)\}$, el ensamble construye $B$ árboles de decisión no correlacionados $\{T_b\}_{b=1}^B$. Cada árbol se entrena sobre una muestra bootstrap $D_b \subset D$ y selecciona en cada partición un subconjunto aleatorio de $m \approx \sqrt{p}$ características (para clasificación) o $m \approx p/3$ (para regresión).
+
+La predicción final para una nueva entrada $x$ se obtiene mediante el promedio aritmético o votación mayoritaria:
+\begin{equation}
+    \hat{f}_{\text{rf}}(x) = \frac{1}{B} \sum_{b=1}^B T_b(x)
+\end{equation}
+
+\subsection{Modelos Base de Comparación (Baselines)}
+Para contrastar el rendimiento del ensamble y evidenciar el beneficio de modelar no linealidades, se entrenaron modelos lineales regulares:
+\begin{itemize}
+    \item \textbf{Regresión Ridge ($L_2$):} Minimiza la función de costo con penalización de norma euclidiana:
+    \begin{equation}
+        J(\beta) = \|y - X\beta\|_2^2 + \alpha \|\beta\|_2^2
+    \end{equation}
+    \item \textbf{Regresión Logística Regularizada:} Utilizada en clasificación con normalización previa de características (\textit{Z-Score Standardization}) para optimizar la convergencia de la función sigmoide o softmax multiclase.
+\end{itemize}
+
+% ==============================================================================
+% 4. JUSTIFICACIÓN Y EXPLICACIÓN DE LOS MODELOS
+% ==============================================================================
+\section{Justificación y Explicación de los Modelos}
+
+El portafolio se dividió equitativamente entre los integrantes del equipo en dos bloques complementarios:
+
+\subsection{Bloque A (Compañero: Carlos Arce)}
+\begin{itemize}
+    \item \textbf{01. Tasación de Autos Usados:} Regresión sobre \texttt{car data.csv} para predecir el valor de reventa a partir del kilometraje, año y precio de lista.
+    \item \textbf{02. Clasificación de Calidad del Vino:} Clasificación sensorial sobre \texttt{winequalityN.csv} discriminando calidades premium a partir de acidez, sulfatos y graduación alcohólica.
+    \item \textbf{03. Predicción de Abandono (Telco Churn):} Clasificación binaria en \texttt{Telco-Customer-Churn.csv} para retención temprana de clientes según antigüedad y tipo de contrato.
+    \item \textbf{04. Predicción del Precio del Aguacate:} Regresión sobre \texttt{avocado.csv} modelando patrones de estacionalidad, volumen por calibre y regiones geográficas.
+    \item \textbf{05. Detección de Accidente Cerebrovascular (Stroke):} Clasificación clínica sobre \texttt{stroke-data.csv} con balanceo de pesos para mitigar el severo desbalance de eventos vasculares.
+\end{itemize}
+
+\subsection{Bloque B (Estudiante: Joshua Picado)}
+\begin{itemize}
+    \item \textbf{06. Predicción de Grasa / Masa Corporal:} Regresión en \texttt{bodyfat.csv} utilizando 13 medidas antropométricas. Se descartó la variable \texttt{Density} para evitar filtración de datos (\textit{data leakage}), ya que la grasa se deriva de ella mediante la fórmula de Siri \cite{siri1956body}.
+    \item \textbf{07. Detección Diagnóstica de Hepatitis C:} Clasificación sobre \texttt{HepatitisCdata.csv} que analiza marcadores enzimáticos de daño hepatocitario (AST, ALT, GGT, Bilirrubina) \cite{lichtinghagen2013hepatitis}, permitiendo evaluar la sospecha de patología hepática en tamizajes de laboratorio.
+    \item \textbf{08. Estadificación de Cirrosis Hepática:} Clasificación multiclase en \texttt{cirrhosis.csv} que modela los estadios histológicos (1 a 4) según la escala Mayo \cite{dickson1989prognosis}, asociando trombocitopenia y colestasis como soporte analítico preliminar.
+    \item \textbf{09. Predicción del Precio de Cierre de Bitcoin:} Regresión financiera en \texttt{bitcoin\_price\_Training.csv} que interpola el precio de cierre intradiario de BTC a partir de rangos de apertura, máximos, mínimos y volumen transaccionado.
+    \item \textbf{10. Predicción de Acciones del S\&P 500:} Regresión bursátil sobre \texttt{all\_stocks\_5yr.csv} con una muestra multiactivo de 25,000 sesiones de las firmas líderes del índice Wall Street \cite{fischer2018deep}.
+\end{itemize}
+
+% ==============================================================================
+% 5. ANÁLISIS DE RESULTADOS OBTENIDOS
+% ==============================================================================
+\section{Análisis de Resultados Obtenidos}
+
+En la Tabla \ref{tab:metricas} se sintetiza el desempeño cuantitativo de los diez modelos en sus respectivos conjuntos de prueba independientes (20\% test split):
+
+\begin{table}[h!]
+\centering
+\caption{Métricas de Evaluación del Portafolio Completo de 10 Modelos de 10N-AI.}
+\label{tab:metricas}
+\small
+\begin{tabular}{cllll}
+\toprule
+\textbf{\#} & \textbf{Problema de Negocio / Clínico} & \textbf{Tipo de Tarea} & \textbf{Métrica Propuesta (RF)} & \textbf{Métrica Base} \\
+\midrule
+01 & Precio de Automóviles & Regresión & $R^2$: 0.609 / MAE: 1.36 lakhs & $R^2$: 0.755 (Ridge) \\
+02 & Calidad del Vino & Clasificación & Accuracy: 88.5\% / F1: 0.820 & Accuracy: 73.1\% (Logit) \\
+03 & Abandono de Clientes (Telco) & Clasificación & ROC-AUC: 0.842 / Recall: 0.790 & ROC-AUC: 0.811 (Logit) \\
+04 & Precio del Aguacate & Regresión & $R^2$: 0.814 / MAE: \$0.16 USD & $R^2$: 0.428 (Ridge) \\
+05 & Detección de Stroke & Clasificación & ROC-AUC: 0.865 / Recall: 0.820 & ROC-AUC: 0.821 (Logit) \\
+\midrule
+06 & Grasa Corporal (BodyFat) & Regresión & $R^2$: 0.642 / MAE: 3.41\% & $R^2$: 0.612 (Ridge) \\
+07 & Diagnóstico de Hepatitis C & Clasificación & Accuracy: 97.56\% / AUC: 0.985 & Accuracy: 91.1\% (Logit) \\
+08 & Estadio de Cirrosis Hepática & Clasificación Multi & F1-Weighted: 0.467 & F1-Weighted: 0.412 (Logit) \\
+09 & Precio de Cierre Bitcoin & Regresión & $R^2$: 0.9976 / MAE: \$10.05 USD & $R^2$: 0.9982 (Ridge) \\
+10 & Acciones S\&P 500 & Regresión & $R^2$: 0.9999 / MAE: \$0.38 USD & $R^2$: 0.9999 (Ridge) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Discusión Crítica de Hallazgos y Análisis de Compromisos}
+En conformidad con el método científico aplicado, se examina con moderación el alcance empírico de las soluciones:
+\begin{itemize}
+    \item \textbf{Formulación de Contorno en Series Bursátiles (Modelos 09 y 10):} Los elevados coeficientes $R^2 > 0.99$ obtenidos en Bitcoin y S\&P 500 no deben interpretarse erróneamente como infalibilidad en el mercado financiero. Responden directamente a la formulación intradiaria, donde los valores de apertura, máximo y mínimo actúan como cotas matemáticas naturales que delimitan el cierre. Dicha formulación es altamente eficaz para interpolación y tarificación en la sesión observada, pero tiene un ámbito restringido que no permite pronosticar rupturas tendenciales en días futuros sin reentrenamiento continuo.
+    \item \textbf{Análisis de Falsos Negativos y Ajuste de Umbral en Hepatitis C (Modelo 07):} En el conjunto de prueba de 123 muestras, el clasificador identificó a 14 de los 15 pacientes patológicos (Recall = 93.3\%). Sin embargo, se generó 1 falso negativo y 2 falsos positivos. En un contexto real de banco de sangre, omitir a 1 paciente infectado representa un riesgo crítico de transmisión. Por ello, se concluye que el desempeño es cuantitativamente favorable, pero en un entorno clínico operativo se debe calibrar el umbral de decisión (disminuyéndolo de 0.50 a 0.35) para garantizar un Recall del 100\%, asumiendo el compromiso de un incremento en falsos positivos para su posterior confirmación por PCR.
+    \item \textbf{Complejidad Multiclase y Margen de Mejora en Cirrosis (Modelo 08):} Con un F1-Score ponderado de 0.467, el modelo supera el azar (25\%), pero exhibe una tasa de discordancia histológica superior al 50\%. La matriz de confusión evidencia solapamiento entre estadios adyacentes (2 y 3). Se concluye con rigor que el algoritmo no constituye una alternativa diagnóstica autónoma, sino un sistema estratificado preliminar que requiere complementar los análisis bioquímicos con elastografía hepática para resolver la transición fibrótica.
+    \item \textbf{Tolerancia Instrumental en Grasa Corporal (Modelo 06):} El $R^2$ de 0.642 y MAE de 3.41\% demuestran utilidad para tamizaje corporal no invasivo en el asistente, reconociendo una variabilidad de $\pm 3.4\%$ comparable a la imprecisión del plicómetro manual, manteniendo espacio de optimización frente a escaneos DEXA.
+\end{itemize}
+
+% ==============================================================================
+% 6. BIBLIOGRAFÍA
+% ==============================================================================
+\bibliographystyle{plain}
+\bibliography{referencias}
+
+% ==============================================================================
+% 7. ANEXOS
+% ==============================================================================
+\newpage
+\section{Anexos}
+
+\subsection{Anexo A: Catálogo de Endpoints de la API REST (FastAPI)}
+La API corre por defecto en el puerto 8000 con documentación OpenAPI en \texttt{/docs}:
+\begin{itemize}
+    \item \texttt{POST /api/models/01\_autos/predict}: Cotización de automóviles usados.
+    \item \texttt{POST /api/models/06\_bodyfat/predict}: Estimación antropométrica de grasa corporal.
+    \item \texttt{POST /api/models/07\_hepatitis/predict}: Diagnóstico enzimático de patología hepática.
+    \item \texttt{POST /api/models/08\_cirrosis/predict}: Estadificación histológica de cirrosis (1-4).
+    \item \texttt{POST /api/models/09\_bitcoin/predict}: Proyección de precio de liquidación BTC/USD.
+    \item \texttt{POST /api/models/10\_sp500/predict}: Pronóstico de cotización bursátil Wall Street.
+    \item \texttt{POST /api/vision/emotion}: Análisis facial en Base64 con Azure Face API o fallback local.
+    \item \texttt{POST /api/voice/process-command}: Interpretación de comandos por voz y síntesis según Core D10S o Core CR7.
+\end{itemize}
+
+\subsection{Anexo B: Instrucciones de Despliegue en Google Colab}
+Para entrenar cualquiera de los cuadernos en Google Colab:
+\begin{enumerate}
+    \item Cargar la carpeta \texttt{Datasets} en la raíz de Google Drive: \texttt{/MyDrive/Datasets/}.
+    \item Abrir el cuaderno correspondiente en Google Colab (e.g., \texttt{06\_prediccion\_grasa\_corporal.ipynb}).
+    \item Ejecutar celda 3; el comando \texttt{drive.mount('/content/drive')} montará automáticamente los datos.
+    \item El cuaderno ejecutará el entrenamiento, los gráficos Plotly interactivos y descargará automáticamente el binario serializado \texttt{.joblib} listo para el repositorio.
+\end{enumerate}
+
+\end{document}
