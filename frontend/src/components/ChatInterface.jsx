@@ -14,15 +14,31 @@ export default function ChatInterface({
   setIsListening,
   detectedEmotion
 }) {
+  const getDynamicGreeting = (core) => {
+    if (core === 'd10s') {
+      const opts = [
+        "¡Hola che, qué hacés! Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, calidad de vino, aguacates, clientes, salud o cripto. Elegí una opción abajo o escribime directamente.",
+        "¡Buenas che! Acá tenés al Core D10S listo en la cancha. Estoy para ayudarte a analizar datos y correr predicciones con precisión. ¿Arrancamos con algún modelo del panel o me tirás una consulta directa?",
+        "¡Qué hacés hermano! Core D10S activado. Tranquilidad, mate en mano y foco total en los datos. Vos tirame el centro con la predicción que quieras y lo resolvemos en una."
+      ];
+      return opts[Math.floor(Math.random() * opts.length)];
+    } else {
+      const opts = [
+        "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia, disciplina y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+        "¡Siuuu, Comandante! Core CR7 listo en el terreno de juego. Aquí no hay margen de error: máxima potencia predictiva y mentalidad ganadora. ¿Qué analizamos primero?",
+        "¡Todo al 100%! Asistente 10N-AI con la mentalidad ganadora de CR7. Análisis financiero, salud, mercado y visión computacional. ¡Dime el objetivo y vamos a por el resultado!"
+      ];
+      return opts[Math.floor(Math.random() * opts.length)];
+    }
+  };
+
   const [messages, setMessages] = useState(() => {
     if (initialMessages && initialMessages.length > 0) return initialMessages;
     return [
       {
         id: 1,
         sender: 'assistant',
-        text: persona === 'd10s' 
-          ? "Hola, ¿cómo andás? Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, la calidad de un vino, precio de aguacates, retención de clientes o riesgo de salud. Podés seleccionar una opción abajo para ajustar los parámetros o escribirme directamente."
-          : "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+        text: getDynamicGreeting(persona),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         interactiveModel: null,
         modelParams: null,

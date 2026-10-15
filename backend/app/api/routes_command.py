@@ -1,4 +1,5 @@
 import re
+import random
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
@@ -44,6 +45,113 @@ def normalize_spoken_spanish(text: str) -> str:
         t = re.sub(rf'\b{word}\b', num, t)
         
     return t
+
+def get_conversational_reply(texto: str, es_d10s: bool) -> tuple:
+    """
+    Genera respuestas conversacionales dinámicas y naturales según la personalidad
+    (D10S / CR7) para saludos, preguntas cotidianas, elogios, despedidas y dudas generales.
+    """
+    t = texto.lower().strip()
+    
+    # 1. Saludos cotidianos y preguntas de estado
+    saludos_keywords = [
+        "hola", "buenas", "buen dia", "buenos dias", "buenos días", "buenas tardes",
+        "buenas noches", "como estas", "cómo estás", "como andas", "cómo andás",
+        "como te va", "cómo te va", "todo bien", "pura vida", "que tal", "qué tal",
+        "que haces", "qué hacés", "que onda", "qué onda", "mae", "che", "siuu", "oe", "ey", "hey"
+    ]
+    if any(re.search(rf'\b{re.escape(k)}\b', t) for k in saludos_keywords):
+        if es_d10s:
+            opciones = [
+                "¡Qué hacés, che! Todo tranquilo por acá, tomando unos mates y listo para analizar datos. ¿Con qué predicción arrancamos hoy?",
+                "¡Hola hermano! Por acá todo de diez, enfocado y con ganas de ayudarte. Decime qué querés predecir y le pegamos al ángulo.",
+                "¡Buenas che! Acá andamos, firmes en la cancha. ¿Qué datos querés que miremos?",
+                "¡Pura vida, che! Por acá todo impecable. ¿Nos mandamos una inferencia o querés probar la cámara web primero?",
+                "¡Hola! Todo en orden por suerte. Estoy listo para cuando me digas: autos, aguacates, salud, cripto... vos tirame el centro que yo defino."
+            ]
+        else:
+            opciones = [
+                "¡Siuuu! ¡Todo al 100%, Comandante! La disciplina y la motivación nunca bajan. ¿Qué récord o predicción vamos a romper hoy?",
+                "¡Qué tal! Siempre enfocado, entrenando al máximo y listo para ganar. Dime qué consulta ejecutamos y lo hacemos con precisión quirúrgica.",
+                "¡Hola! Por aquí todo en el más alto nivel. El éxito no es casualidad, es trabajo duro y constancia. ¿Qué datos vamos a analizar hoy?",
+                "¡Pura vida, crack! Máxima energía positiva. Estoy listo con toda la potencia de la IA y visión artificial. ¡Tú mandas!",
+                "¡Siuuu! ¡Excelente! Concentración absoluta. Pídeme cualquier predicción o enciende la cámara, ¡hoy se gana sí o sí!"
+            ]
+        return random.choice(opciones), "saludo_conversacional"
+
+    # 2. Identidad y ayuda
+    identidad_keywords = [
+        "quien eres", "quién eres", "quien sos", "quién sos", "que sos", "qué sos",
+        "que haces", "qué haces", "que podes hacer", "qué podés hacer", "que puedes hacer",
+        "qué puedes hacer", "para que servis", "para qué servís", "para que sirves",
+        "para qué sirves", "ayuda", "comandos", "opciones"
+    ]
+    if any(k in t for k in identidad_keywords):
+        if es_d10s:
+            opciones = [
+                "Soy el Core D10S de 10N-AI, che. Domino predicciones de mercado, finanzas, salud, tasaciones y también te analizo las emociones con la cámara web. ¡Pedime lo que necesites!",
+                "Acá tenés al Core D10S. Estoy preparado para correr predicciones en tiempo real y reconocer expresiones faciales por cámara. Decime un comando como 'predecir precio de auto' o 'calidad de vino' y lo resolvemos en una."
+            ]
+        else:
+            opciones = [
+                "¡Soy el Core CR7 de 10N-AI! El número uno en potencia y precisión. Domino analítica predictiva de élite y visión por computadora para detección de emociones en tiempo real. ¡Dime qué necesitas resolver!",
+                "¡Siuuu! Soy el asistente inteligente más disciplinado. Puedo proyectar tendencias financieras, diagnósticos médicos, cotizaciones de mercado y evaluar tu estado anímico con la cámara. ¡Pídeme un análisis y verás resultados de campeón!"
+            ]
+        return random.choice(opciones), "identidad_asistente"
+
+    # 3. Elogios y agradecimientos
+    elogios_keywords = [
+        "gracias", "muchas gracias", "crack", "genio", "idolo", "ídolo", "buen trabajo",
+        "el mejor", "sos grande", "eres grande", "te quiero", "te amo", "grande"
+    ]
+    if any(re.search(rf'\b{re.escape(k)}\b', t) for k in elogios_keywords):
+        if es_d10s:
+            opciones = [
+                "¡De nada, che! Para eso estamos, el trabajo en equipo siempre da resultados. Seguimos cuando quieras, hermano.",
+                "¡Gracias a vos! Lo importante es seguir sumando y acertar cada predicción. ¿Hacemos otra inferencia?",
+                "¡Gracias che! Con humildad y trabajo constante se logran los objetivos. Decime qué más analizamos."
+            ]
+        else:
+            opciones = [
+                "¡De nada, Comandante! ¡El trabajo duro y la dedicación no se negocian! ¡Siuuu! ¿Cuál es el siguiente objetivo?",
+                "¡Gracias a ti, crack! La mentalidad ganadora marca la diferencia. ¡Sigamos rompiendo estadísticas!",
+                "¡Por supuesto! La grandeza se demuestra con resultados. ¡A por la siguiente victoria!"
+            ]
+        return random.choice(opciones), "agradecimiento"
+
+    # 4. Despedidas
+    despedidas_keywords = [
+        "adios", "adiós", "chao", "chau", "hasta luego", "nos vemos", "bye", "hasta mañana"
+    ]
+    if any(re.search(rf'\b{re.escape(k)}\b', t) for k in despedidas_keywords):
+        if es_d10s:
+            opciones = [
+                "¡Dale che, nos vemos! Descansá o avisame cuando quieras meterle a otra sesión de datos. Un abrazo grande.",
+                "¡Chau hermano! Acá me quedo en el banco de suplentes listo para cuando me llames. ¡Cuidate!"
+            ]
+        else:
+            opciones = [
+                "¡Hasta la próxima, Comandante! A descansar y recargar energías para seguir triunfando. ¡Siuuu!",
+                "¡Nos vemos, crack! Mantén siempre el enfoque y la disciplina al máximo. ¡Hasta pronto!"
+            ]
+        return random.choice(opciones), "despedida"
+
+    # 5. Fallback general variado y contextual
+    if es_d10s:
+        opciones = [
+            "Mirá che, no te entendí bien esa jugada. Probá pidiéndome predecir un auto, vino, aguacates, salud, cripto, o tocá una de las opciones en el panel de abajo.",
+            "Che, esa se me fue un toque larga. ¿Querés que probemos con alguna de las predicciones del panel o encendés la cámara para ver cómo estás de ánimo?",
+            "No te capté del todo hermano. Preguntame por ejemplo: 'cotizar precio de aguacate' o 'calidad del vino', o elegí uno de los accesos directos acá abajo.",
+            "Che, tirame una consulta directa sobre las predicciones de IA o probá con la cámara web. ¡Estoy listo!"
+        ]
+    else:
+        opciones = [
+            "¡Atención! Ese comando no entró al área. Prueba con 'predecir precio de Bitcoin', 'riesgo de ACV' o selecciona una opción del panel.",
+            "¡Concentración, Comandante! No reconocí la instrucción. Pídeme un análisis de autos, clientes, acciones de S&P 500 o activa la cámara para escanear tu rostro.",
+            "¡Ajustemos la mira! Puedes pedirme cualquier simulación inteligente o pulsar los botones de abajo. ¡Vamos con todo!",
+            "¡No te rindas! Intenta con un comando directo como 'predecir calidad de vino' o 'tasar auto'. ¡La precisión lo es todo!"
+        ]
+    return random.choice(opciones), "consulta_general"
 
 class CommandRequest(BaseModel):
     transcript: str = Field(..., description="Texto reconocido por voz o chat", example="10N-AI cotizar precio de aguacate")
@@ -518,22 +626,19 @@ def process_voice_command(payload: CommandRequest):
         }
 
     # =========================================================================
-    # Saludo General / Consulta libre
+    # Conversación fluida / Saludos / Elogios / Despedidas / Consulta libre
     # =========================================================================
     else:
-        if es_d10s:
-            saludo = "¡Hola che! Soy el Core D10S de 10N-AI. Preguntame lo que necesites sobre cualquiera de los 10 modelos de IA: calidad de vino, tasación de autos, fuga de clientes, precio de aguacates, riesgo de infarto cerebral, grasa corporal, diagnóstico de hepatitis, cirrosis, cotización de Bitcoin o acciones del S&P 500. También podés encender tu cámara para analizar emociones. ¿Qué querés consultar?"
-        else:
-            saludo = "¡Siuuu! Core CR7 en línea. Máxima precisión y potencia para tus consultas con los 10 modelos de Inteligencia Artificial (autos, vino, clientes, aguacate, salud ACV, grasa corporal, hepatitis, cirrosis, Bitcoin y S&P 500) y visión artificial. Dime en qué te puedo ayudar:"
+        respuesta_texto, intencion = get_conversational_reply(raw_texto, es_d10s)
 
         return {
             "success": True,
-            "intencion": "saludo_general",
+            "intencion": intencion,
             "interactive_model": None,
             "params": None,
             "has_prediction": False,
             "comando_original": payload.transcript,
-            "respuesta_texto": saludo,
+            "respuesta_texto": respuesta_texto,
             "datos": None
         }
 
