@@ -61,6 +61,18 @@ export default function ChatInterface({
     scrollToBottom();
   }, [messages, loading, liveCameraActive]);
 
+  // Cortar voz inmediatamente al cambiar de chat, de persona o al desmontar
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (setIsSpeaking) {
+        setIsSpeaking(false);
+      }
+    };
+  }, [chatId, persona]);
+
   // Sincronizar mensajes localmente y con el storage de la conversación
   const setMessagesAndSync = (updater, autoTitle = null) => {
     setMessages(prev => {
