@@ -14,15 +14,31 @@ export default function ChatInterface({
   setIsListening,
   detectedEmotion
 }) {
+  const getDynamicGreeting = (core) => {
+    if (core === 'd10s') {
+      const opts = [
+        "¡Hola che, qué hacés! Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, calidad de un vino, precio de aguacates, clientes, salud o cripto. Elegí una opción abajo o escribime directamente.",
+        "¡Buenas che! Acá tenés al Core D10S listo en la cancha. Estoy para ayudarte a analizar datos y correr predicciones con precisión. ¿Arrancamos con algún modelo del panel o me tirás una consulta directa?",
+        "¡Qué hacés hermano! Core D10S activado. Tranquilidad, mate en mano y foco total en los datos. Vos tirame el centro con la predicción que quieras y lo resolvemos en una."
+      ];
+      return opts[Math.floor(Math.random() * opts.length)];
+    } else {
+      const opts = [
+        "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia, disciplina y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+        "¡Siuuu, Comandante! Core CR7 listo en el terreno de juego. Aquí no hay margen de error: máxima potencia predictiva y mentalidad ganadora. ¿Qué analizamos primero?",
+        "¡Todo al 100%! Asistente 10N-AI con la mentalidad ganadora de CR7. Análisis financiero, salud, mercado y visión computacional. ¡Dime el objetivo y vamos a por el resultado!"
+      ];
+      return opts[Math.floor(Math.random() * opts.length)];
+    }
+  };
+
   const [messages, setMessages] = useState(() => {
     if (initialMessages && initialMessages.length > 0) return initialMessages;
     return [
       {
         id: 1,
         sender: 'assistant',
-        text: persona === 'd10s' 
-          ? "Hola, ¿cómo andás? Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, la calidad de un vino, precio de aguacates, retención de clientes o riesgo de salud. Podés seleccionar una opción abajo para ajustar los parámetros o escribirme directamente."
-          : "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+        text: getDynamicGreeting(persona),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         interactiveModel: null,
         modelParams: null,
@@ -60,6 +76,115 @@ export default function ChatInterface({
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading, liveCameraActive]);
+
+  const currentAudioRef = useRef(null);
+
+  // Detener toda reproducción de voz en curso (tanto Audio de backend como síntesis nativa)
+  const stopAllAudio = () => {
+    if (currentAudioRef.current) {
+      try {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.currentTime = 0;
+      } catch (e) {}
+      currentAudioRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (setIsSpeaking) {
+      setIsSpeaking(false);
+    }
+  };
+
+  // Cortar voz inmediatamente al cambiar de chat, de persona o al desmontar
+  useEffect(() => {
+    return () => {
+      stopAllAudio();
+    };
+  }, [chatId, persona]);
+
+  // Reproducir voz neuronal real del Core (RVC v2 Local con cuerdas vocales reales y sincronización labial)
+  const playAssistantSpeech = async (textToSpeak) => {
+    if (!soundEnabled || !textToSpeak) return;
+    stopAllAudio();
+
+    let cleanText = textToSpeak.replace(/\*\*/g, '').replace(/[\*_`#]/g, '').trim();
+    if (!cleanText) return;
+
+    try {
+      const res = await fetch('/api/tts/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: cleanText,
+          persona: persona
+        })
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        currentAudioRef.current = audio;
+
+        audio.onplay = () => {
+          if (setIsSpeaking) setIsSpeaking(true);
+        };
+        audio.onended = () => {
+          if (setIsSpeaking) setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+          currentAudioRef.current = null;
+        };
+        audio.onerror = () => {
+          if (setIsSpeaking) setIsSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+          currentAudioRef.current = null;
+        };
+
+        return await audio.play();
+      } else {
+        console.warn("[TTS] Error del backend al generar audio:", res.status);
+      }
+    } catch (e) {
+      console.warn("[TTS] Fallo en síntesis de audio local:", e);
+      throw e;
+    }
+  };
+
+  const welcomeSpokenRef = useRef(false);
+
+  // Reproducir automáticamente el mensaje inicial del Core al abrir o crear un chat
+  useEffect(() => {
+    if (welcomeSpokenRef.current) return;
+    if (!soundEnabled || !messages || messages.length === 0) return;
+
+    const firstMsg = messages[0];
+    if (firstMsg.sender !== 'assistant' || !firstMsg.text) return;
+
+    const welcomeText = firstMsg.text;
+
+    const speakWelcome = () => {
+      welcomeSpokenRef.current = true;
+      playAssistantSpeech(welcomeText).catch((err) => {
+        console.warn("[TTS Autoplay] Esperando primer gesto para reproducir bienvenida:", err);
+        const unlockAndSpeak = () => {
+          playAssistantSpeech(welcomeText).catch(() => {});
+          window.removeEventListener('pointerdown', unlockAndSpeak);
+          window.removeEventListener('click', unlockAndSpeak);
+          window.removeEventListener('keydown', unlockAndSpeak);
+        };
+        window.addEventListener('pointerdown', unlockAndSpeak, { once: true });
+        window.addEventListener('click', unlockAndSpeak, { once: true });
+        window.addEventListener('keydown', unlockAndSpeak, { once: true });
+      });
+    };
+
+    const timer = setTimeout(speakWelcome, 400);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [chatId]);
 
   // Sincronizar mensajes localmente y con el storage de la conversación
   const setMessagesAndSync = (updater, autoTitle = null) => {
@@ -228,18 +353,8 @@ export default function ChatInterface({
     };
     setMessagesAndSync(prev => [...prev, assistantMsg]);
 
-    // Respuesta hablada
-    if (soundEnabled && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(replyText.replace(/\*\*/g, ''));
-      utter.lang = 'es-ES';
-      utter.rate = isD10S ? 1.05 : 1.15;
-      utter.pitch = isD10S ? 0.95 : 1.1;
-      utter.onstart = () => setIsSpeaking(true);
-      utter.onend = () => setIsSpeaking(false);
-      utter.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utter);
-    }
+    // Respuesta hablada neuronal con sincronización labial
+    playAssistantSpeech(replyText);
   };
 
   // Detener reconocimiento de voz de manera limpia
@@ -318,17 +433,8 @@ export default function ChatInterface({
         });
       }
 
-      if (soundEnabled && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(replyText.replace(/\*\*/g, ''));
-        utter.lang = 'es-ES';
-        utter.rate = isD10S ? 1.05 : 1.15;
-        utter.pitch = isD10S ? 0.95 : 1.1;
-        utter.onstart = () => setIsSpeaking(true);
-        utter.onend = () => setIsSpeaking(false);
-        utter.onerror = () => setIsSpeaking(false);
-        window.speechSynthesis.speak(utter);
-      }
+      // Respuesta hablada neuronal con sincronización labial
+      playAssistantSpeech(replyText);
 
     } catch (err) {
       console.error(err);
@@ -415,16 +521,9 @@ export default function ChatInterface({
         return m;
       }));
 
-      if (soundEnabled && 'speechSynthesis' in window && feedback) {
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(feedback);
-        utter.lang = 'es-ES';
-        utter.rate = isD10S ? 1.05 : 1.15;
-        utter.pitch = isD10S ? 0.95 : 1.1;
-        utter.onstart = () => setIsSpeaking(true);
-        utter.onend = () => setIsSpeaking(false);
-        utter.onerror = () => setIsSpeaking(false);
-        window.speechSynthesis.speak(utter);
+      // Respuesta hablada neuronal con sincronización labial
+      if (feedback) {
+        playAssistantSpeech(feedback);
       }
 
       confetti({
@@ -650,9 +749,22 @@ export default function ChatInterface({
                     />
                   )}
                 </div>
-                <span className={`text-[10px] font-mono mt-1 text-slate-500 ${isUser ? 'text-right' : 'text-left'}`}>
-                  {m.time}
-                </span>
+                <div className={`flex items-center gap-2 mt-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
+                  <span className="text-[10px] font-mono text-slate-500">
+                    {m.time}
+                  </span>
+                  {!isUser && (
+                    <button
+                      type="button"
+                      onClick={() => playAssistantSpeech(m.text)}
+                      title={`Escuchar voz neuronal clonada de ${isD10S ? 'Messi' : 'CR7'}`}
+                      className="px-1.5 py-0.5 rounded text-[10px] font-rajdhani font-semibold text-slate-400 hover:text-cyan-300 hover:bg-slate-800/80 transition-all flex items-center gap-1 border border-transparent hover:border-cyan-500/30"
+                    >
+                      <Volume2 className="w-3 h-3 text-cyan-400" />
+                      <span>{isD10S ? 'D10S Voz' : 'CR7 Voz'}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );

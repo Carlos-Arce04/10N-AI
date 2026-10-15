@@ -6,18 +6,35 @@ import ChatHistorySidebar from './components/ChatHistorySidebar';
 
 const CHATS_STORAGE_KEY = '10N_AI_CHATS_HISTORY_V1';
 
-const createInitialChat = (persona = 'd10s') => ({
-  id: `chat-${Date.now()}`,
+const getDynamicWelcomeGreeting = (core) => {
+  if (core === 'd10s') {
+    const options = [
+      "¡Hola che, qué hacés! Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, calidad de un vino, precio de aguacates, clientes, salud o cripto. Elegí una opción abajo o escribime directamente.",
+      "¡Buenas che! Acá tenés al Core D10S listo en la cancha. Estoy para ayudarte a analizar datos y correr predicciones con precisión. ¿Arrancamos con algún modelo del panel o me tirás una consulta directa?",
+      "¡Qué hacés hermano! Core D10S activado. Tranquilidad, mate en mano y foco total en los datos. Vos tirame el centro con la predicción que quieras y lo resolvemos en una."
+    ];
+    return options[Math.floor(Math.random() * options.length)];
+  } else {
+    const options = [
+      "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia, disciplina y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+      "¡Siuuu, Comandante! Core CR7 listo en el terreno de juego. Aquí no hay margen de error: máxima potencia predictiva y mentalidad ganadora. ¿Qué analizamos primero?",
+      "¡Todo al 100%! Asistente 10N-AI con la mentalidad ganadora de CR7. Análisis financiero, salud, mercado y visión computacional. ¡Dime el objetivo y vamos a por el resultado!"
+    ];
+    return options[Math.floor(Math.random() * options.length)];
+  }
+};
+
+const createInitialChat = (core = 'd10s') => ({
+  id: `chat-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
   title: 'Nueva Conversación',
+  persona: core,
   timestamp: new Date().toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
   createdAt: Date.now(),
   messages: [
     {
       id: 1,
       sender: 'assistant',
-      text: persona === 'd10s'
-        ? "Hola, ¿cómo andás? Soy 10N-AI con el Core D10S. Preguntame lo que necesites sobre el valor de un auto, la calidad de un vino, precio de aguacates, retención de clientes o riesgo de salud. Podés seleccionar una opción abajo para ajustar los parámetros o escribirme directamente."
-        : "¡Siuuu! Asistente 10N-AI activado con el Core CR7. Máxima potencia y precisión para responder a tus consultas. Elige una de las opciones a continuación para simular los parámetros o pregúntame lo que necesites.",
+      text: getDynamicWelcomeGreeting(core),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       interactiveModel: null,
       modelParams: null,
@@ -28,20 +45,13 @@ const createInitialChat = (persona = 'd10s') => ({
 });
 
 export default function App() {
-  const [persona, setPersona] = useState('d10s'); // 'd10s' o 'cr7'
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [detectedEmotion, setDetectedEmotion] = useState(null);
-  const [backendOnline, setBackendOnline] = useState(false);
-  const [latency, setLatency] = useState(0);
-
   // Historial de Chats (Estilo Gemini / ChatGPT con LocalStorage)
   const [chats, setChats] = useState(() => {
     try {
       const saved = localStorage.getItem(CHATS_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.warn("Error leyendo historial de chats de localStorage", e);
@@ -50,9 +60,17 @@ export default function App() {
   });
 
   const [activeChatId, setActiveChatId] = useState(() => {
-    return chats[0]?.id || 'default';
+    return chats[0]?.id || null;
   });
 
+  // Persona sincronizada con la conversación activa
+  const [persona, setPersona] = useState(() => {
+    return chats[0]?.persona || 'd10s';
+  });
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [detectedEmotion, setDetectedEmotion] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Persistir chats en localStorage cada vez que cambien
@@ -64,52 +82,58 @@ export default function App() {
     }
   }, [chats]);
 
-  // Ping periódico de salud al backend FastAPI
-  useEffect(() => {
-    const checkBackend = async () => {
-      const t0 = performance.now();
-      try {
-        const res = await fetch('/api/health');
-        if (res.ok) {
-          const t1 = performance.now();
-          setLatency(Math.round(t1 - t0));
-          setBackendOnline(true);
-        } else {
-          setBackendOnline(false);
-        }
-      } catch (err) {
-        setBackendOnline(false);
-      }
-    };
-
-    checkBackend();
-    const interval = setInterval(checkBackend, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  // Cortar de inmediato cualquier audio/voz en ejecución
+  const stopVoice = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  };
 
   // Crear una nueva conversación
-  const handleNewChat = () => {
-    const newChat = createInitialChat(persona);
+  const handleNewChat = (specificPersona = null) => {
+    stopVoice();
+    const targetCore = specificPersona || persona;
+    setPersona(targetCore);
+    const newChat = createInitialChat(targetCore);
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(newChat.id);
   };
 
-  // Seleccionar chat existente
-  const handleSelectChat = (chatId) => {
-    setActiveChatId(chatId);
+  // Cambio de Core desde el Navbar: siempre inicia una conversación nueva exclusiva para ese core
+  const handleSwitchPersona = (newPersona) => {
+    if (newPersona === persona && activeChatId) return;
+    stopVoice();
+    setPersona(newPersona);
+    const newChat = createInitialChat(newPersona);
+    setChats(prev => [newChat, ...prev]);
+    setActiveChatId(newChat.id);
   };
 
-  // Eliminar chat
+  // Seleccionar chat existente: corta voz y sincroniza automáticamente el avatar al core de ese chat
+  const handleSelectChat = (chatId) => {
+    stopVoice();
+    setActiveChatId(chatId);
+    const target = chats.find(c => c.id === chatId);
+    if (target?.persona) {
+      setPersona(target.persona);
+    }
+  };
+
+  // Eliminar chat: si se borran todos, queda en estado vacío (no fuerza uno de Messi)
   const handleDeleteChat = (chatId) => {
+    stopVoice();
     setChats(prev => {
       const filtered = prev.filter(c => c.id !== chatId);
       if (filtered.length === 0) {
-        const fresh = createInitialChat(persona);
-        setActiveChatId(fresh.id);
-        return [fresh];
+        setActiveChatId(null);
+        return [];
       }
       if (activeChatId === chatId) {
         setActiveChatId(filtered[0].id);
+        if (filtered[0].persona) {
+          setPersona(filtered[0].persona);
+        }
       }
       return filtered;
     });
@@ -131,6 +155,8 @@ export default function App() {
 
   // Reset del chat actual manteniendo el mismo id
   const handleResetCurrentChat = () => {
+    stopVoice();
+    if (!activeChatId) return;
     const freshMessages = [
       {
         id: Date.now(),
@@ -148,7 +174,7 @@ export default function App() {
     handleUpdateActiveChatMessages(freshMessages);
   };
 
-  const currentChat = chats.find(c => c.id === activeChatId) || chats[0] || createInitialChat(persona);
+  const currentChat = chats.find(c => c.id === activeChatId) || null;
 
   return (
     <div className="h-screen w-screen bg-[#07090e] text-slate-100 flex flex-col overflow-hidden relative">
@@ -159,51 +185,107 @@ export default function App() {
         chats={chats}
         activeChatId={activeChatId}
         onSelectChat={handleSelectChat}
-        onNewChat={handleNewChat}
+        onNewChat={() => handleNewChat()}
         onDeleteChat={handleDeleteChat}
         isD10S={persona === 'd10s'}
       />
 
-      {/* NAVBAR SUPERIOR ESTILO GEMINI / CHATGPT */}
+      {/* NAVBAR SUPERIOR LIMPIO (SIN PING, SIN RAYO, SIN SUBTÍTULO) */}
       <Navbar
         persona={persona}
-        setPersona={setPersona}
-        backendOnline={backendOnline}
-        latency={latency}
+        onSwitchPersona={handleSwitchPersona}
         onResetChat={handleResetCurrentChat}
         onToggleSidebar={() => setSidebarOpen(prev => !prev)}
         sidebarOpen={sidebarOpen}
         chatCount={chats.length}
       />
 
-      {/* ÁREA CENTRAL: AVATAR A LA IZQUIERDA Y CHAT EXTENDIDO HASTA EL FONDO */}
+      {/* ÁREA CENTRAL: AVATAR A LA IZQUIERDA Y CHAT EXTENDIDO */}
       <main className="flex-1 w-full min-h-0 flex flex-row overflow-hidden relative">
         
-        {/* CARA DE PARTÍCULAS: A LA IZQUIERDA, TOTALMENTE LIBRE */}
-        <aside className="w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-10 pointer-events-auto">
-          <ParticleAvatar
-            persona={persona}
-            isSpeaking={isSpeaking}
-            isListening={isListening}
-            emotion={detectedEmotion}
-          />
-        </aside>
+        {/* CARA DE PARTÍCULAS: SOLO CUANDO HAY UN CHAT ACTIVO (SE DESPLAZA SI SE ABRE EL HISTORIAL) */}
+        {currentChat && (
+          <aside
+            className={`w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-20 pointer-events-auto transition-transform duration-300 ease-in-out ${
+              sidebarOpen ? 'translate-x-72 sm:translate-x-80' : 'translate-x-0'
+            }`}
+          >
+            <ParticleAvatar
+              persona={persona}
+              isSpeaking={isSpeaking}
+              isListening={isListening}
+              emotion={detectedEmotion}
+            />
+          </aside>
+        )}
 
-        {/* CHAT CONVERSACIONAL EXTENDIDO HASTA ABAJO (ESTILO CHATGPT / GEMINI) */}
+        {/* CHAT CONVERSACIONAL EXTENDIDO O PANTALLA DE CREAR NUEVO CHAT */}
         <section className="flex-1 h-full min-h-0 min-w-0 flex flex-col items-center justify-between pr-3 lg:pr-8 pl-1">
           <div className="w-full max-w-4xl h-full min-h-0 flex flex-col">
-            <ChatInterface
-              key={activeChatId}
-              persona={persona}
-              chatId={activeChatId}
-              initialMessages={currentChat.messages}
-              onUpdateMessages={handleUpdateActiveChatMessages}
-              isSpeaking={isSpeaking}
-              setIsSpeaking={setIsSpeaking}
-              isListening={isListening}
-              setIsListening={setIsListening}
-              detectedEmotion={detectedEmotion}
-            />
+            {currentChat ? (
+              <ChatInterface
+                key={activeChatId}
+                persona={persona}
+                chatId={activeChatId}
+                initialMessages={currentChat.messages}
+                onUpdateMessages={handleUpdateActiveChatMessages}
+                isSpeaking={isSpeaking}
+                setIsSpeaking={setIsSpeaking}
+                isListening={isListening}
+                setIsListening={setIsListening}
+                detectedEmotion={detectedEmotion}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none">
+                <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                  <span className="text-3xl">💬</span>
+                </div>
+                <h2 className="font-orbitron text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">
+                  No hay conversaciones activas
+                </h2>
+                <p className="text-sm text-slate-400 max-w-md mb-8 font-rajdhani">
+                  Elige un núcleo inteligente para comenzar una nueva conversación y explorar los modelos predictivos de IA.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
+                  {/* Tarjeta Core D10S */}
+                  <button
+                    onClick={() => handleNewChat('d10s')}
+                    className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-cyan-500/30 hover:border-cyan-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.25)] hover:scale-[1.02]"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-orbitron font-black text-sm text-cyan-400 tracking-wider">CORE D10S</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">Messi</span>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
+                      Tono argentino cálido y analítico. Inferencia experta en predicciones y modelos.
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-semibold">
+                      <span>Iniciar conversación</span>
+                      <span>→</span>
+                    </div>
+                  </button>
+
+                  {/* Tarjeta Core CR7 */}
+                  <button
+                    onClick={() => handleNewChat('cr7')}
+                    className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-amber-500/30 hover:border-amber-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] hover:scale-[1.02]"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-orbitron font-black text-sm text-amber-400 tracking-wider">CORE CR7</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono">Cristiano</span>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
+                      Máxima potencia, ambición y respuestas directas con mentalidad ganadora.
+                    </p>
+                    <div className="mt-4 flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
+                      <span>Iniciar conversación</span>
+                      <span>→</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

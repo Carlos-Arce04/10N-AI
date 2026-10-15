@@ -59,13 +59,27 @@ export default function ParticleAvatar({ persona, isSpeaking, isListening }) {
       tick += 0.04;
       ctx.clearRect(0, 0, size, size);
 
-      // Cálculo de animación de labios / habla
-      let mouthOffset = 0;
+      // Biomecánica de articulación mandibular humana:
+      // El maxilar superior (labio superior, bigote y nariz) permanece fijo al cráneo.
+      // Es la mandíbula inferior (labio inferior y barbilla) la que desciende para abrir la boca.
+      const mouthCenter = { x: 151.0, y: 183.0 };
+      let openAmount = 0;
+      let widthMod = 0;
+      let lateralShift = 0;
+
       if (isSpeaking) {
-        // Oscilación natural con cadencia de habla que abre y cierra la boca
-        const openCycle = Math.sin(tick * 11) * 0.5 + 0.5;
-        const speechCadence = Math.sin(tick * 17) * 0.3 + 0.7;
-        mouthOffset = openCycle * speechCadence * 6.5; // Apertura de 0 a 6.5 píxeles
+        // Cadencia silábica realista (~3.5 sílabas por segundo)
+        const speechSpeed = tick * 6.8;
+        // Solo abre en la fase positiva de la onda; en la fase negativa (0) la boca se cierra completamente
+        const openRatio = Math.max(0, Math.sin(speechSpeed));
+        const vowelWeight = 0.65 + 0.35 * Math.sin(tick * 2.8);
+        // Apertura sutil y proporcionada (máximo 3.8 píxeles, nunca una caverna)
+        openAmount = Math.pow(openRatio, 1.4) * 3.8 * vowelWeight;
+
+        // Modulación horizontal de labios según fonemas
+        widthMod = Math.sin(tick * 3.8) * 0.15;
+        // Asimetría humana sutil
+        lateralShift = Math.sin(tick * 5.2) * 0.45;
       }
 
       const particles = particlesRef.current;
@@ -79,25 +93,45 @@ export default function ParticleAvatar({ persona, isSpeaking, isListening }) {
         let ty = p.baseY;
 
         if (isSpeaking) {
+          // Distancia horizontal normalizada al centro de la boca (-1 = comisura izq, +1 = comisura der)
+          const relX = (p.baseX - mouthCenter.x) / 24.0;
+          const distNorm = Math.min(1.0, Math.abs(relX));
+          const centerWeight = Math.cos(distNorm * (Math.PI / 2)); // 1.0 en el centro, 0.0 en comisuras
+          const cornerWeight = 1.0 - centerWeight;
+
           if (p.isLower) {
-            ty += mouthOffset;
-          } else if (p.isChin) {
-            ty += mouthOffset * 0.55;
+            // Labio inferior: cae con arco natural hacia abajo (más al centro, menos en comisuras)
+            ty += openAmount * (0.9 * centerWeight + 0.25 * cornerWeight);
+            tx += (p.baseX - mouthCenter.x) * widthMod * 0.2 + lateralShift * 0.3;
           } else if (p.isUpper) {
-            ty -= mouthOffset * 0.2;
+            // Labio superior y bigote: FIJOS al cráneo superior, NO se mueven verticalmente
+            tx += (p.baseX - mouthCenter.x) * widthMod * 0.1 + lateralShift * 0.1;
+          } else if (p.isChin) {
+            // Barbilla/mandíbula: acompaña sutilmente la caída de la mandíbula inferior
+            const chinProximity = Math.max(0, 1.0 - Math.abs(p.baseX - mouthCenter.x) / 36.0);
+            ty += openAmount * 0.45 * chinProximity;
+            tx += lateralShift * 0.15;
+          } else if (p.isMouth) {
+            // Comisuras: modulación horizontal sutil
+            tx += (p.baseX - mouthCenter.x) * widthMod * 0.15 + lateralShift * 0.2;
           }
         }
 
-        // Micro-ondulación orgánica sutil para que el holograma respire
-        const shimmer = Math.sin(tick * 2.0 + i * 0.08) * 0.35;
+        const isAnyMouth = p.isMouth || p.isLower || p.isUpper;
 
-        // Física tipo resorte hacia la coordenada del rostro
+        // Micro-ondulación orgánica sutil para que el holograma respire (no entorpece los labios al hablar)
+        const shimmer = (isSpeaking && isAnyMouth) ? 0 : Math.sin(tick * 2.0 + i * 0.08) * 0.35;
+
+        // Física elástica: articulación más ágil y precisa en labios y mandíbula
+        const springK = (isSpeaking && (isAnyMouth || p.isChin)) ? 0.16 : 0.08;
+        const damping = (isSpeaking && (isAnyMouth || p.isChin)) ? 0.74 : 0.82;
+
         const dx = tx - p.x;
         const dy = (ty + shimmer) - p.y;
-        p.vx += dx * 0.08;
-        p.vy += dy * 0.08;
-        p.vx *= 0.82;
-        p.vy *= 0.82;
+        p.vx += dx * springK;
+        p.vy += dy * springK;
+        p.vx *= damping;
+        p.vy *= damping;
 
         // Repulsión magnética del cursor
         if (mouse.active) {
@@ -127,9 +161,9 @@ export default function ParticleAvatar({ persona, isSpeaking, isListening }) {
 
         ctx.shadowBlur = isSpeaking ? 4 : 2;
 
-        // Dibujar partícula nítida
+        // Dibujar partícula nítida con pulso elástico en labios
         ctx.beginPath();
-        const pSize = p.size * (isSpeaking && p.isMouth ? 1.25 : 1.0);
+        const pSize = p.size * (isSpeaking && isAnyMouth ? 1.2 : 1.0);
         ctx.arc(p.x, p.y, pSize, 0, Math.PI * 2);
         ctx.fill();
       }

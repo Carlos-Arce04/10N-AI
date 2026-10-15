@@ -112,12 +112,6 @@ export default function ChatHistorySidebar({
         )}
       </div>
 
-      {/* FOOTER INFORMACIÓN DE MEMORIA */}
-      <div className="p-3 border-t border-slate-800/80 text-[10px] font-mono text-slate-500 flex items-center justify-between">
-        <span>MEMORIA LOCAL: ACTIVA</span>
-        <span className="text-emerald-400 font-bold">100% PERSISTENTE</span>
-      </div>
-
     </aside>
   );
 }
