@@ -187,15 +187,21 @@ export default function App() {
       {/* ÁREA CENTRAL: AVATAR A LA IZQUIERDA Y CHAT EXTENDIDO */}
       <main className="flex-1 w-full min-h-0 flex flex-row overflow-hidden relative">
         
-        {/* CARA DE PARTÍCULAS: A LA IZQUIERDA */}
-        <aside className="w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-10 pointer-events-auto">
-          <ParticleAvatar
-            persona={persona}
-            isSpeaking={isSpeaking}
-            isListening={isListening}
-            emotion={detectedEmotion}
-          />
-        </aside>
+        {/* CARA DE PARTÍCULAS: SOLO CUANDO HAY UN CHAT ACTIVO (SE DESPLAZA SI SE ABRE EL HISTORIAL) */}
+        {currentChat && (
+          <aside
+            className={`w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-20 pointer-events-auto transition-transform duration-300 ease-in-out ${
+              sidebarOpen ? 'translate-x-72 sm:translate-x-80' : 'translate-x-0'
+            }`}
+          >
+            <ParticleAvatar
+              persona={persona}
+              isSpeaking={isSpeaking}
+              isListening={isListening}
+              emotion={detectedEmotion}
+            />
+          </aside>
+        )}
 
         {/* CHAT CONVERSACIONAL EXTENDIDO O PANTALLA DE CREAR NUEVO CHAT */}
         <section className="flex-1 h-full min-h-0 min-w-0 flex flex-col items-center justify-between pr-3 lg:pr-8 pl-1">
