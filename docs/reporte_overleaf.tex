@@ -209,42 +209,47 @@ El portafolio de diez algoritmos de aprendizaje automático se distribuyó en do
 
 \subsubsection{Modelo 01: Tasación de Automóviles Usados (\texttt{car data.csv})}
 \begin{itemize}
-    \item \textbf{Problema:} Estimar el precio de venta en el mercado secundario de vehículos en función de sus especificaciones técnicas y kilometraje acumulado.
-    \item \textbf{Variables Relevantes:} Año del modelo, precio de agencia original (\texttt{Present\_Price}), kilómetros recorridos (\texttt{Kms\_Driven}), tipo de combustible (Gasolina, Diésel, GNC), tipo de vendedor (Agencia vs. Particular) y transmisión (Manual vs. Automática).
-    \item \textbf{Preprocesamiento:} Se codificaron las variables categóricas mediante \textit{One-Hot Encoding}. Se creó la variable derivada de antigüedad (\texttt{Antigüedad = Año\_Actual - Año}) para linealizar la relación de depreciación.
-    \item \textbf{Algoritmo y Justificación:} Se evaluaron Random Forest Regressor y Ridge. Random Forest logró capturar la depreciación exponencial no lineal que experimentan los vehículos en sus primeros cinco años de uso, estabilizando el error residual.
+    \item \textbf{Problema:} Estimar el precio de venta en el mercado secundario de vehículos (\texttt{Selling\_Price} en lakhs) en función de sus especificaciones mecánicas y comerciales.
+    \item \textbf{Variables Relevantes:} Precio de agencia original (\texttt{Present\_Price}), kilómetros recorridos (\texttt{Kms\_Driven}), antigüedad derivada (\texttt{Vehicle\_Age}), tipo de combustible (Gasolina, Diésel, GNC), tipo de vendedor (Dealer vs. Individual) y transmisión (Manual vs. Automática).
+    \item \textbf{Preprocesamiento:} Codificación de variables categóricas mediante \textit{One-Hot Encoding}; derivación del predictor \texttt{Vehicle\_Age = 2026 - Year}; partición $80/20$ sin mezcla temporal.
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Se enfrentaron **Random Forest Regressor** (hiperparámetros óptimos: \texttt{max\_depth=6}, \texttt{n\_estimators=150}) frente a **Regresión Ridge** ($L_2$). En el conjunto de prueba, Ridge obtuvo un mejor ajuste global de varianza ($R^2 = 0.7552$, $\text{RMSE} = 2.5118$) frente al $R^2 = 0.6096$ de Random Forest; no obstante, el Bosque Aleatorio presentó un error absoluto medio (MAE) menor ($1.3621$ vs. $1.4826$ lakhs), demostrando que Random Forest comete menores desviaciones en las predicciones habituales del parque automotor.
 \end{itemize}
 
 \subsubsection{Modelo 02: Clasificación de Calidad del Vino (\texttt{winequalityN.csv})}
 \begin{itemize}
-    \item \textbf{Problema:} Clasificar si un lote de vino tinto o blanco posee calidad sensorial alta (puntuación organoléptica $\ge 7$) o estándar ($< 7$) a partir de mediciones físico-químicas de laboratorio.
-    \item \textbf{Variables Relevantes:} Acidez fija y volátil, ácido cítrico, azúcar residual, cloruros, dióxido de azufre libre y total, densidad, pH, sulfatos, graduación alcohólica y tipo de vino (blanco/tinto).
-    \item \textbf{Preprocesamiento:} Imputación de valores faltantes puntuales mediante la mediana de cada grupo de vino. Estandarización de escalas mediante \texttt{StandardScaler}.
-    \item \textbf{Algoritmo y Justificación:} Random Forest Classifier superó con creces a la regresión logística ($88.5\%$ vs. $73.1\%$ de exactitud), evidenciando que la calidad enológica depende de interacciones cruzadas complejas entre el alcohol y la acidez volátil que los modelos lineales no pueden segregar.
+    \item \textbf{Problema:} Clasificar si un lote vinícola corresponde a calidad estándar ($< 7$) o alta/premium ($\ge 7$) a partir de doce parámetros analíticos físico-químicos.
+    \item \textbf{Variables Relevantes:} Acidez fija y volátil, ácido cítrico, azúcar residual, cloruros, dióxido de azufre libre y total, densidad, pH, sulfatos, alcohol y tipo de vino (\texttt{type\_red}).
+    \item \textbf{Preprocesamiento:} Imputación de nulos aislados con la mediana de cada variedad; escalado robusto con \texttt{StandardScaler}; partición estratificada ($80/20$).
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Se comparó **Random Forest Classifier** (\texttt{max\_depth=15}, \texttt{n\_estimators=150}) contra **Regresión Logística**. Random Forest alcanzó una exactitud global del $78.52\%$ (frente al $73.1\%$ del baseline), un F1-Score en validación cruzada de $0.8201$ y un ROC-AUC de $0.8578$. El modelo demostró que la graduación alcohólica y la baja acidez volátil son los dos factores bioquímicos de mayor peso sensorial.
 \end{itemize}
 
 \subsubsection{Modelo 03: Predicción de Abandono de Clientes - Telco Churn (\texttt{Telco-Customer-Churn.csv})}
 \begin{itemize}
-    \item \textbf{Problema:} Anticipar la fuga (\textit{churn}) de clientes en una compañía de telecomunicaciones para activar campañas proactivas de retención.
-    \item \textbf{Variables Relevantes:} Antigüedad (\texttt{tenure}), tipo de contrato (mensual, anual, bianual), método de pago, cargos mensuales, cargos totales y servicios contratados (fibra óptica, streaming, soporte técnico).
-    \item \textbf{Preprocesamiento:} Conversión de la columna \texttt{TotalCharges} a numérica resolviendo espacios en blanco; imputación de clientes nuevos con 0 cargos; binarización de variables categóricas.
-    \item \textbf{Algoritmo y Justificación:} Se seleccionó Random Forest optimizado para maximizar el área bajo la curva ROC (ROC-AUC = $0.842$). Se dio prioridad a la métrica de \textit{Recall} para reducir la pérdida de clientes no detectados a tiempo.
+    \item \textbf{Problema:} Anticipar la fuga (\textit{churn}) de suscriptores de telecomunicaciones para activar estrategias de retención comercial.
+    \item \textbf{Variables Relevantes:} Antigüedad (\texttt{tenure}), tipo de contrato (mes a mes, un año, dos años), método de pago, cargos mensuales (\texttt{MonthlyCharges}), cargos acumulados y servicios asociados.
+    \item \textbf{Preprocesamiento:} Conversión de \texttt{TotalCharges} resolviendo registros en blanco; imputación en ceros para clientes nuevos; codificación binaria de servicios; balanceo ponderado.
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Se evaluó **Random Forest Classifier** con ponderación balanceada (\texttt{class\_weight='balanced'}, \texttt{max\_depth=8}, \texttt{n\_estimators=200}) contra **Regresión Logística**. El modelo alcanzó un ROC-AUC en validación cruzada de $0.8470$ y una exactitud del $75.66\%$. Lo más relevante comercialmente fue alcanzar un **Recall del $77.27\%$** en la clase positiva (detectando a 289 de los 374 clientes en riesgo de cancelación en el set de prueba), priorizando la reducción de falsos negativos.
 \end{itemize}
 
 \subsubsection{Modelo 04: Predicción del Precio del Aguacate (\texttt{avocado.csv})}
 \begin{itemize}
-    \item \textbf{Problema:} Predecir el precio medio unitario (\texttt{AveragePrice}) de aguacate Hass en los Estados Unidos considerando estacionalidad y volúmenes por calibre comercial.
-    \item \textbf{Variables Relevantes:} Volumen total vendido, bolsas vendidas por tamaño (Small, Large, XLarge), tipo de cultivo (convencional vs. orgánico), año, mes y región geográfica.
-    \item \textbf{Preprocesamiento:} Extracción de componentes temporales (mes, semana del año); codificación de la variable de tipo orgánico ($1$) o convencional ($0$); agrupación por región.
-    \item \textbf{Algoritmo y Justificación:} Random Forest Regressor obtuvo un coeficiente $R^2$ de $0.814$, modelando con alta fidelidad las marcadas fluctuaciones estacionales de oferta y demanda entre diferentes regiones agrícolas.
+    \item \textbf{Problema:} Estimar el precio medio por unidad (\texttt{AveragePrice} en \$USD) de aguacate Hass en los Estados Unidos.
+    \item \textbf{Variables Relevantes:} Volumen total vendido, desglose de calibres (PLU 4046, 4225, 4770, empaques en bolsas), método de cultivo (\texttt{is\_organic}), mes de la cosecha y región comercial.
+    \item \textbf{Duelo de Arquitecturas (Clase 3 vs. Clase 6):} Se diseñó una competencia formal entre **Bosques Aleatorios (Random Forest Regressor, Métodos de Ensamble)** y una **Red Neuronal Artificial (Multi-Layer Perceptron - MLPRegressor, Deep Learning)** con capas densas y optimizador Adam.
+    \item \textbf{Resultado del Duelo:} El Bosque Aleatorio se coronó como el ganador indiscutible:
+    \begin{itemize}
+        \item **Random Forest:** $R^2 = \mathbf{0.9089}$ | $\text{MAE} = \mathbf{\$0.0848\text{ USD}}$ | $\text{RMSE} = \mathbf{\$0.1227\text{ USD}}$.
+        \item **Red Neuronal MLP:** $R^2 = 0.8578$ | $\text{MAE} = \$0.1093\text{ USD}$ | $\text{RMSE} = \$0.1533\text{ USD}$.
+    \end{itemize}
+    Random Forest logró modelar con superioridad las relaciones tabulares del tipo de cultivo orgánico y la estacionalidad mensual con un error medio inferior a 9 centavos de dólar.
 \end{itemize}
 
 \subsubsection{Modelo 05: Detección de Accidente Cerebrovascular - Stroke (\texttt{stroke-data.csv})}
 \begin{itemize}
-    \item \textbf{Problema:} Predecir el riesgo clínico inminente de que un paciente sufra un accidente cerebrovascular (infarto cerebral o ACV).
-    \item \textbf{Variables Relevantes:} Edad, hipertensión, cardiopatías, estado civil, tipo de trabajo, nivel medio de glucosa en sangre, índice de masa corporal (IMC) y hábito tabáquico.
-    \item \textbf{Preprocesamiento:} El dataset presenta un desbalance severo de clases (menos del $5\%$ de casos positivos). Se imputaron los valores faltantes de IMC con la mediana según el grupo etario. Se aplicó ponderación equilibrada de clases (\texttt{class\_weight='balanced'}) para penalizar fuertemente los errores en la clase patológica.
-    \item \textbf{Algoritmo y Justificación:} Random Forest con balanceo alcanzó un ROC-AUC de $0.865$ y un Recall del $82.0\%$, aspecto fundamental para evitar omitir pacientes con alto riesgo vascular.
+    \item \textbf{Problema:} Predecir el riesgo clínico inminente de que un paciente sufra un accidente cerebrovascular (ACV o infarto cerebral).
+    \item \textbf{Variables Relevantes:} Edad, hipertensión, cardiopatías, nivel medio de glucosa, índice de masa corporal (\texttt{bmi}), estado civil, tipo de empleo y tabaquismo.
+    \item \textbf{Preprocesamiento y Desbalance Clínico:} Se identificaron 201 registros nulos en \texttt{bmi}, imputados mediante la mediana del grupo etario. La prevalencia real de ACV es sumamente reducida (apenas el $4.87\%$ de casos positivos), lo que convierte la exactitud simple en una métrica engañosa.
+    \item \textbf{Algoritmos Evaluados y Comparativa (Clase 4 vs. Clase 2):} Se implementó una **Máquina de Vectores de Soporte con Kernel RBF (SVM)** (\texttt{C=0.5}, \texttt{gamma=0.01}, \texttt{class\_weight='balanced'}) frente a una **Regresión Logística**. SVM alcanzó un ROC-AUC de $0.8380$ y un **Recall del $80.00\%$** en pacientes con ACV (detectando a 40 de los 50 casos patológicos de prueba), cumpliendo el imperativo médico de maximizar la sensibilidad diagnóstica ante un evento letal.
 \end{itemize}
 
 \subsection{Bloque B (Modelos 06 al 10 - Joshua Picado)}
@@ -303,24 +308,24 @@ Todos los modelos fueron evaluados de forma imparcial sobre conjuntos de prueba 
 
 \begin{table}[h!]
 \centering
-\caption{Métricas de Evaluación Cuantitativa del Portafolio Completo de Modelos en 10N-AI.}
+\caption{Métricas de Evaluación Cuantitativa del Portafolio Completo de Modelos en 10N-AI (Test Split 20\%).}
 \label{tab:metricas_completas}
 \footnotesize
 \begin{tabular}{clllcc}
 \toprule
-\textbf{\#} & \textbf{Problema Analizado} & \textbf{Tipo de Tarea} & \textbf{Métrica Propuesta (RF)} & \textbf{Métrica Base} & \textbf{Bloque} \\
+\textbf{\#} & \textbf{Problema Analizado} & \textbf{Tipo de Tarea} & \textbf{Métrica Modelo Seleccionado} & \textbf{Métrica Modelo Base} & \textbf{Bloque} \\
 \midrule
-01 & Tasación de Autos & Regresión & $R^2$: \textbf{0.609} / MAE: 1.36 lakhs & $R^2$: 0.755 (Ridge) & A \\
-02 & Calidad del Vino & Clasificación & Accuracy: \textbf{88.5\%} / F1: \textbf{0.820} & Acc: 73.1\% (Logit) & A \\
-03 & Abandono Clientes (Telco) & Clasificación & ROC-AUC: \textbf{0.842} / Recall: \textbf{0.790} & ROC: 0.811 (Logit) & A \\
-04 & Precio del Aguacate & Regresión & $R^2$: \textbf{0.814} / MAE: \$0.16 USD & $R^2$: 0.428 (Ridge) & A \\
-05 & Detección de Stroke & Clasificación & ROC-AUC: \textbf{0.865} / Recall: \textbf{0.820} & ROC: 0.821 (Logit) & A \\
+01 & Tasación de Autos & Regresión & $R^2$: \textbf{0.6096} / MAE: 1.3621 lakhs (RF) & $R^2$: 0.7552 / MAE: 1.4826 (Ridge) & A \\
+02 & Calidad del Vino & Clasificación & Accuracy: \textbf{78.52\%} / ROC: \textbf{0.8578} (RF) & Accuracy: 73.10\% (Logit) & A \\
+03 & Abandono Clientes (Telco) & Clasificación & ROC-AUC: \textbf{0.8470} / Recall: \textbf{77.27\%} (RF) & ROC-AUC: 0.8110 (Logit) & A \\
+04 & Precio del Aguacate & Regresión & $R^2$: \textbf{0.9089} / MAE: \textbf{\$0.0848 USD} (RF) & $R^2$: 0.8578 / MAE: \$0.1093 (Red MLP) & A \\
+05 & Detección de Stroke (ACV) & Clasificación & ROC-AUC: \textbf{0.8380} / Recall: \textbf{80.00\%} (SVM) & ROC-AUC: 0.8210 (Logit) & A \\
 \midrule
-06 & Grasa Corporal (BodyFat) & Regresión & $R^2$: \textbf{0.642} / MAE: 3.41\% & $R^2$: 0.612 (Ridge) & B \\
-07 & Diagnóstico Hepatitis C & Clasificación & Accuracy: \textbf{97.56\%} / ROC: \textbf{0.985} & Acc: 91.1\% (Logit) & B \\
-08 & Estadificación Cirrosis & Clasif. Multi & F1-Weighted: \textbf{0.467} / Acc: 48.8\% & F1: 0.412 (Logit) & B \\
-09 & Precio Cierre Bitcoin & Regresión & $R^2$: \textbf{0.9976} / MAE: \$10.05 USD & $R^2$: 0.9982 (Ridge) & B \\
-10 & Acciones S\&P 500 & Regresión & $R^2$: \textbf{0.9999} / MAE: \$0.38 USD & $R^2$: 0.9999 (Ridge) & B \\
+06 & Grasa Corporal (BodyFat) & Regresión & $R^2$: \textbf{0.6420} / MAE: 3.41\% (RF) & $R^2$: 0.6120 (Ridge) & B \\
+07 & Diagnóstico Hepatitis C & Clasificación & Accuracy: \textbf{97.56\%} / ROC: \textbf{0.9850} (RF) & Accuracy: 91.10\% (Logit) & B \\
+08 & Estadificación Cirrosis & Clasif. Multi & F1-Weighted: \textbf{0.4670} / Acc: 45.78\% (RF) & F1-Weighted: 0.4120 (Logit) & B \\
+09 & Precio Cierre Bitcoin & Regresión & $R^2$: \textbf{0.9976} / MAE: \$10.05 USD (RF) & $R^2$: 0.9982 (Ridge) & B \\
+10 & Acciones S\&P 500 & Regresión & $R^2$: \textbf{0.9999} / MAE: \$0.38 USD (RF) & $R^2$: 0.9999 (Ridge) & B \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -339,10 +344,12 @@ Desde una perspectiva puramente matemática, un $97.56\%$ de exactitud global y 
 Por tanto, se concluye con madurez que el modelo no debe operarse con el umbral de decisión estándar de $0.50$. En un despliegue operativo, es imperativo **calibrar el umbral de clasificación reduciéndolo a $0.35$**, lo que garantiza un \textit{Recall} del $100\%$ sobre los pacientes patológicos, asumiendo conscientemente el compromiso (\textit{trade-off}) de admitir un leve incremento en falsos positivos. En medicina, un falso positivo solo conlleva a una prueba molecular confirmatoria secundaria (PCR), mientras que un falso negativo puede costar una vida.
 
 \subsubsection{Compromisos en Detección de Infarto Cerebral / Stroke (Modelo 05)}
-De manera análoga al modelo de hepatitis, el dataset de stroke presenta un desbalance natural drástico ($<5\%$ de eventos positivos). Aunque la exactitud global aparente de un clasificador ingenuo podría superar el $95\%$ simplemente prediciendo siempre ``no stroke'', dicho modelo carecería de valor clínico. Al forzar la ponderación equilibrada de clases (\texttt{class\_weight='balanced'}), se logró un Recall de $82.0\%$ (detectando a 4 de cada 5 pacientes en riesgo). Esto significa que aún quedan aproximadamente un $18\%$ de pacientes vulnerables clasificados erróneamente como falsos negativos, lo que confirma que el modelo es una herramienta útil de alerta preventiva, pero debe complementarse con criterio médico humano y no considerarse infalible.
+En el modelo 05 de Stroke desarrollado por Carlos Arce, el dataset presenta un desbalance natural drástico: únicamente el $4.87\%$ de los pacientes evaluados sufrieron un ACV. Aunque un clasificador ingenuo que siempre predijera clase negativa obtendría más del $95\%$ de exactitud aparente, carecería de toda utilidad médica preventiva.
+
+Carlos implementó una **Máquina de Vectores de Soporte (SVM con Kernel RBF)** con penalización balanceada (\texttt{class\_weight='balanced'}). En el conjunto de prueba de 1,022 pacientes, el modelo logró un **Recall del $80.00\%$** en la clase patológica (identificando exitosamente a 40 de los 50 pacientes en riesgo). Sin embargo, esto conllevó a **10 falsos negativos** (pacientes con riesgo no detectados) y a una reducción deliberada en la exactitud global ($69.96\%$) debida a falsos positivos en personas sanas. Esto confirma con realismo que el modelo cumple su función como sistema de alerta primaria, pero no debe considerarse un dictamen definitivo sin confirmación de tomografía cerebral por un médico especialista.
 
 \subsubsection{Complejidad Multiclase y Límites Diagnósticos en Cirrosis (Modelo 08)}
-La estadificación histológica de la cirrosis en 4 niveles arrojó un F1-Score ponderado de $0.467$. Aunque supera con claridad el azar uniforme ($25\%$), exhibe una tasa de discordancia superior al $50\%$. Al inspeccionar la matriz de confusión, se observa que la mayor parte de las confusiones ocurren entre **estadios contiguos** (especialmente entre el estadio 2 y el estadio 3). 
+La estadificación histológica de la cirrosis en 4 niveles arrojó un F1-Score ponderado de $0.467$ y una exactitud de $45.78\%$. Aunque supera con claridad el azar uniforme ($25\%$), exhibe una tasa de discordancia superior al $50\%$. Al inspeccionar la matriz de confusión, se observa que la mayor parte de las confusiones ocurren entre **estadios contiguos** (especialmente entre el estadio 2 y el estadio 3). 
 Bioquímicamente, la transición de fibrosis moderada a severa presenta valores séricos de albúmina y bilirrubina que se solapan de manera continua en la población. Por consiguiente, se concluye con total honestidad que los análisis sanguíneos por sí solos no poseen suficiente poder discriminante para resolver la biopsia exacta en estadios intermedios, fundamentando que la herramienta informática debe catalogarse como un clasificador de soporte inicial que requiere ser corroborado con elastografía hepática (\textit{FibroScan}).
 
 \subsubsection{Interpretación Honesta de las Series Bursátiles (Modelos 09 y 10)}
