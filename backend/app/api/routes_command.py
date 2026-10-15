@@ -16,8 +16,8 @@ def normalize_spoken_spanish(text: str) -> str:
     t = re.sub(r'\b(ese\s*y\s*pe|s\s*y\s*p|s\s*&\s*p|sp\s*500|s\s*y\s*p\s*500|ese\s*y\s*pe\s*quinientos)\b', 'sp500', t)
     t = re.sub(r'\b(a\.?\s*c\.?\s*v\.?|derrame\s*cerebral|infarto\s*cerebral|accidente\s*cerebrovascular)\b', 'stroke', t)
     t = re.sub(r'\b(grasa\s*corpolar|porcentaje\s*grasa|grasa\s*corporal|composicion\s*corporal)\b', 'grasa', t)
-    t = re.sub(r'\b(hepatitis\s*c|hepatitis|patologia\s*hepatica)\b', 'hepatitis', t)
-    t = re.sub(r'\b(cirrosis\s*hepatica|cirrosis|estadio\s*de\s*cirrosis)\b', 'cirrosis', t)
+    t = re.sub(r'\b(cirrosis\s*hep[aá]tica|cirrosis|estadio\s*de\s*cirrosis)\b', 'cirrosis', t)
+    t = re.sub(r'\b(hepatitis\s*c|hepatitis|patolog[ií]a\s*hep[aá]tica)\b', 'hepatitis', t)
     t = re.sub(r'\b(abandono|cancelacion|retencion|fuga\s*de\s*clientes?)\b', 'churn', t)
     t = re.sub(r'\b(palta|aguacates?|avocado)\b', 'aguacate', t)
     t = re.sub(r'\b(autos?|carros?|vehiculos?|vehículos?|coches?)\b', 'auto', t)
@@ -501,32 +501,7 @@ def process_voice_command(payload: CommandRequest):
         }
 
     # =========================================================================
-    # 7. HEPATITIS C / PERFIL BIOQUÍMICO
-    # =========================================================================
-    elif any(k in texto for k in ["hepatitis", "hígado", "higado", "hepátic", "hepatic", "transaminasa", "alt", "ast"]):
-        params = {
-            "age": 35.0, "sex": "m", "alb": 38.5, "alp": 52.5, "alt": 7.7,
-            "ast": 22.1, "bil": 7.5, "che": 6.93, "chol": 3.23, "crea": 106.0,
-            "ggt": 12.1, "prot": 69.0
-        }
-        if es_d10s:
-            mensaje = "¡Chequeo hepático iniciado! Modificá los biomarcadores séricos en el panel para evaluar si hay indicios de patología hepática:"
-        else:
-            mensaje = "¡Diagnóstico bioquímico de Hepatitis C activado! Ingresa los valores de laboratorio en el panel para evaluar el estado hepático:"
-
-        return {
-            "success": True,
-            "intencion": "diagnostico_hepatitis",
-            "interactive_model": "hepatitis",
-            "params": params,
-            "has_prediction": False,
-            "comando_original": payload.transcript,
-            "respuesta_texto": mensaje,
-            "datos": None
-        }
-
-    # =========================================================================
-    # 8. CIRROSIS HEPÁTICA / ESTADIFICACIÓN HISTOLÓGICA
+    # 7. CIRROSIS HEPÁTICA / ESTADIFICACIÓN HISTOLÓGICA
     # =========================================================================
     elif any(k in texto for k in ["cirrosis", "estadio", "fibrosis", "ascitis", "hepatomegalia"]):
         params = {
@@ -545,6 +520,31 @@ def process_voice_command(payload: CommandRequest):
             "success": True,
             "intencion": "estadificacion_cirrosis",
             "interactive_model": "cirrosis",
+            "params": params,
+            "has_prediction": False,
+            "comando_original": payload.transcript,
+            "respuesta_texto": mensaje,
+            "datos": None
+        }
+
+    # =========================================================================
+    # 8. HEPATITIS C / PERFIL BIOQUÍMICO
+    # =========================================================================
+    elif any(k in texto for k in ["hepatitis", "transaminasa", "alt", "ast", "ggt"]) or (any(k in texto for k in ["hígado", "higado", "hepátic", "hepatic"]) and "cirrosis" not in texto):
+        params = {
+            "age": 35.0, "sex": "m", "alb": 38.5, "alp": 52.5, "alt": 7.7,
+            "ast": 22.1, "bil": 7.5, "che": 6.93, "chol": 3.23, "crea": 106.0,
+            "ggt": 12.1, "prot": 69.0
+        }
+        if es_d10s:
+            mensaje = "¡Chequeo hepático iniciado! Modificá los biomarcadores séricos en el panel para evaluar si hay indicios de patología hepática:"
+        else:
+            mensaje = "¡Diagnóstico bioquímico de Hepatitis C activado! Ingresa los valores de laboratorio en el panel para evaluar el estado hepático:"
+
+        return {
+            "success": True,
+            "intencion": "diagnostico_hepatitis",
+            "interactive_model": "hepatitis",
             "params": params,
             "has_prediction": False,
             "comando_original": payload.transcript,

@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.env
+.env
+.env.*
 .venv/
 venv/
 ENV/
@@ -56,3 +58,17 @@ backend/credentials/*
 !tsconfig*.json
 !frontend/src/data/*.json
 
+# Caché de audio generado por TTS
+audio_cache/
+backend/audio_cache/
+*.mp3
+*.wav
+
+# Modelos RVC v2 pesados
+models/rvc/
+*.pth
+*.index
+
+# Logs de ejecucion
+*.log
+backend/*.log

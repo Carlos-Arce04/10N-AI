@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import API_TITLE, API_VERSION, API_DESCRIPTION, ALLOWED_ORIGINS
 from app.api.routes_vision import router as vision_router
 from app.api.routes_command import router as command_router
+from app.api.routes_tts import router as tts_router
 
 # Routers modulares dedicados por cada modelo de Machine Learning
 from app.api.routes_car import router as car_router
@@ -39,9 +40,53 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def ensure_rvc_daemon():
+    """Garantiza en segundo plano que el microservicio daemon RVC en RAM (Python 3.10) esté siempre activo."""
+    import threading
+    def _check_and_start():
+        import urllib.request
+        import os
+        import subprocess
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:8005/health", timeout=1) as res:
+                if res.status == 200:
+                    return
+        except Exception:
+            pass
+
+        daemon_script = Path(__file__).resolve().parent / "services" / "rvc_daemon.py"
+        root_dir = Path(__file__).resolve().parents[2]
+        candidates = [
+            os.environ.get("PYTHON_RVC_PATH", ""),
+            r"C:\Users\carlo\AppData\Local\Programs\Python\Python310\python.exe",
+            sys.executable,
+            shutil.which("python3.10") or "",
+            shutil.which("python") or ""
+        ]
+        python_exe = next((c for c in candidates if c and os.path.isfile(c)), sys.executable)
+
+        if daemon_script.is_file():
+            creation_flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+            log_path = root_dir / "backend" / "rvc_daemon.log"
+            try:
+                log_f = open(log_path, "a", encoding="utf-8")
+                subprocess.Popen(
+                    [python_exe, str(daemon_script)],
+                    cwd=str(root_dir),
+                    stdout=log_f,
+                    stderr=log_f,
+                    creationflags=creation_flags
+                )
+            except Exception as e:
+                print(f"[Startup Warning] No se pudo lanzar el daemon RVC automáticamente: {e}")
+
+    threading.Thread(target=_check_and_start, daemon=True).start()
+
 # Inclusión de routers de visión y asistente conversacional
 app.include_router(vision_router)
 app.include_router(command_router)
+app.include_router(tts_router)
 
 # Inclusión de routers modulares por modelo (arquitectura REST limpia)
 # 1. Rutas dedicadas por servicio: /api/aguacate, /api/vino, /api/auto, /api/churn, /api/stroke, /api/bodyfat, etc.
