@@ -1,33 +1,49 @@
 \documentclass[12pt,letterpaper]{article}
 
+% Paquetes de codificación y lenguaje
 \usepackage[utf8]{inputenc}
-\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[spanish,es-nodecimaldot,es-tabla]{babel} % es-tabla fuerza "Tabla" en lugar de "Cuadro"
+
+% Paquetes matemáticos y de símbolos
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{hyperref}
+
+% Paquetes de diseño y formato visual
 \usepackage{geometry}
 \usepackage{fancyhdr}
-\usepackage{listings}
+\usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx} % Permite tablas que se ajustan al ancho de la página
+\usepackage{enumitem} % Control preciso de los márgenes en las listas
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{microtype} % Ajusta automáticamente el espaciado para evitar que el texto se salga del margen
+\usepackage{xurl} % Permite saltos de línea automáticos en enlaces y rutas
 
+% Configuración de márgenes
 \geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 
+% Configuración de enlaces y metadatos
+\usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
     citecolor=blue,
-    urlcolor=cyan
+    urlcolor=cyan,
+    pdftitle={10N-AI: Asistente Inteligente Multimodal},
+    pdfauthor={Carlos Arce Quirós, Joshua Picado Jarquín}
 }
 
+% Configuración de encabezados y pies de página
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{10N-AI: Asistente Inteligente Multimodal}
-\lhead{ITCR - Campus San Carlos}
+\rhead{\footnotesize 10N-AI: Asistente Inteligente Multimodal}
+\lhead{\footnotesize ITCR - Campus San Carlos}
 \cfoot{\thepage}
+
+% Evita viudas y huérfanas (líneas solas al principio o final de página)
+\clubpenalty=10000
+\widowpenalty=10000
 
 \begin{document}
 
@@ -36,37 +52,42 @@
 % ==============================================================================
 \begin{titlepage}
     \centering
-    \vspace*{0.8cm}
+    \vspace*{-2cm}
+    
+    % --- INSERCIÓN DEL LOGO ---
+    \includegraphics[width=0.45\textwidth]{logo-tec.png}\par
+    \vspace{0.4cm}
+    
     {\scshape\Large Instituto Tecnológico de Costa Rica \par}
+    \vspace{0.2cm}
     {\scshape\large Campus Tecnológico Local San Carlos \par}
     {\scshape\large Escuela de Ingeniería en Computación \par}
-    \vspace{1.5cm}
     
-    {\huge\bfseries 10N-AI (Ten AI)\par}
-    \vspace{0.4cm}
+    \vspace{2cm}
+    
+    {\Huge\bfseries 10N-AI (Ten AI)\par}
+    \vspace{0.6cm}
     {\Large\bfseries Asistente Inteligente Multimodal con Percepción Visual, Reconocimiento de Voz y Portafolio de 10 Modelos de Machine Learning\par}
-    \vspace{1.2cm}
     
+    \vspace{1.5cm}
     {\large\textbf{Proyecto I - Inteligencia Artificial}\par}
-    \vspace{1.8cm}
-    
-    \begin{minipage}{0.48\textwidth}
-        \begin{flushleft} \large
-            \textbf{Estudiantes:}\\
-            Carlos Arce Quirós\\
-            Joshua Picado Jarquín
-        \end{flushleft}
-    \end{minipage}
-    \begin{minipage}{0.48\textwidth}
-        \begin{flushright} \large
-            \textbf{Profesor:}\\
-            Ing. Efrén Jiménez Delgado
-        \end{flushright}
-    \end{minipage}
     
     \vfill
+    
+    {\large \textbf{Profesor:}\par}
+    {\large Ing. Efrén Jiménez Delgado\par}
+    
+    \vspace{0.8cm}
+    
+    {\large \textbf{Estudiantes:}\par}
+    {\large Carlos Arce Quirós\par}
+    {\large Joshua Picado Jarquín\par}
+    
+    \vspace{1.5cm}
+    
     {\large II Semestre, 2026 \par}
     {\small Entrega en Semana 11 \par}
+    \vspace*{0.5cm}
 \end{titlepage}
 
 \newpage
@@ -76,9 +97,9 @@
 % RESUMEN EJECUTIVO
 % ==============================================================================
 \begin{abstract}
-En este informe se detalla el diseño, entrenamiento, evaluación y despliegue del sistema \textbf{10N-AI}, un asistente inteligente interactivo inspirado conceptualmente en arquitecturas tipo JARVIS. El sistema resuelve diez problemas prácticos de aprendizaje supervisado mediante una arquitectura distribuida que integra: (1) percepción sensorial de audio en tiempo real mediante \textit{Web Speech API} con streaming de resultados parciales y un módulo de normalización fonética y numérica en backend; (2) análisis facial de expresiones y emociones a través de visión por computadora; (3) una interfaz de usuario interactiva construida en React, Tailwind CSS y Three.js, con avatar de partículas sincronizado fonéticamente y selector de personalidades (\textit{Core D10S} y \textit{Core CR7}); (4) un sistema de memoria y gestión de sesiones persistente; y (5) un backend desacoplado en FastAPI que expone servicios REST para la inferencia de diez modelos serializados. 
+\noindent En este informe se detalla el diseño, entrenamiento, evaluación y despliegue del sistema \textbf{10N-AI}, un asistente inteligente interactivo inspirado conceptualmente en arquitecturas tipo JARVIS. El sistema resuelve diez problemas prácticos de aprendizaje supervisado mediante una arquitectura distribuida que integra: (1) percepción sensorial de audio en tiempo real mediante \textit{Web Speech API} con streaming de resultados parciales y un módulo de normalización fonética y numérica en backend; (2) análisis facial de expresiones y emociones a través de visión por computadora; (3) una interfaz de usuario interactiva construida en React, Tailwind CSS y Three.js, con avatar de partículas sincronizado fonéticamente y selector de personalidades (\textit{Core D10S} y \textit{Core CR7}); (4) un sistema de memoria y gestión de sesiones persistente en \textit{localStorage} con soporte de inferencia elíptica en backend; y (5) un backend desacoplado en FastAPI que expone servicios REST para la inferencia en memoria de diez modelos serializados en \texttt{.joblib}.
 
-El portafolio analítico abarca tareas de regresión y clasificación en dominios biomédicos, financieros, de tasación de activos y retención comercial. Se aplicaron rigurosos procedimientos de preprocesamiento, imputación, escalado, codificación categórica y prevención de fuga de información (\textit{data leakage}). La evaluación en conjuntos de prueba independientes ($80/20$ test split) se complementa con un análisis crítico de compromisos entre sesgo, varianza, falsos positivos y falsos negativos, discutiendo con moderación científica los alcances y márgenes de mejora de cada modelo en escenarios reales de operación.
+El portafolio analítico abarca tareas de regresión y clasificación en dominios automotrices, enológicos, comerciales, biomédicos y bursátiles. Se aplicaron rigurosos procedimientos de preprocesamiento, imputación, escalado, codificación categórica y mitigación preventiva de fuga de información (\textit{data leakage}). La evaluación en conjuntos de prueba independientes ($80/20$ test split) se complementa con un análisis crítico de compromisos entre sesgo, varianza, falsos positivos y falsos negativos, discutiendo con moderación científica los alcances y márgenes de mejora de cada modelo en escenarios reales de operación.
 \end{abstract}
 
 \newpage
@@ -97,30 +118,29 @@ En el ámbito de la Inteligencia Artificial moderna, uno de los mayores desafío
 Para abordar esta problemática de acuerdo con los requerimientos del curso, se diseñó \textbf{10N-AI} (\textit{Ten AI}), un ecosistema de software modular que funciona como un asistente personal inteligente. El sistema permite al usuario formular preguntas en lenguaje natural (tanto por voz como por texto), capturar fotogramas faciales para evaluar su estado anímico, y consultar un portafolio de diez modelos analíticos que resuelven problemas del mundo real.
 
 \subsection{Arquitectura Modular del Sistema}
-La solución se estructura bajo una arquitectura en capas desacopladas, garantizando mantenibilidad, escalabilidad y baja latencia de respuesta (véase Figura conceptual):
+La solución se estructura bajo una arquitectura en capas desacopladas, garantizando mantenibilidad, escalabilidad y baja latencia de respuesta:
 
-\begin{enumerate}
+\begin{enumerate}[leftmargin=*]
     \item \textbf{Capa de Percepción Sensorial e Interfaz (Frontend):}
     \begin{itemize}
-        \item \textbf{Percepción Auditiva (Speech-to-Text):} Emplea la \textit{Web Speech API} estándar del navegador en modo continuo (\texttt{continuous = true}) y con resultados provisionales (\texttt{interimResults = true}). Esto permite al usuario visualizar en pantalla el texto que va pronunciando en tiempo real, eliminando la sensación de latencia. Incorpora un \textit{debounce} de silencio inteligente de 1.8 segundos que finaliza automáticamente la captura sin requerir clics manuales, y un selector dinámico de acento (\texttt{es-419} Latinoamérica por defecto, \texttt{es-CR} Costa Rica y \texttt{es-ES} España) para adaptarse al motor fonético de Chromium.
-        \item \textbf{Percepción Visual (Cámara en tiempo real):} Accede al dispositivo de video del usuario mediante \texttt{navigator.mediaDevices.getUserMedia}, permitiendo la captura de fotogramas en vivo a $640 \times 480$ píxeles o la carga de archivos locales. Los fotogramas se codifican en Base64 o Multipart y se transmiten al backend para la localización de rostros y clasificación emocional.
+        \item \textbf{Percepción Auditiva (Speech-to-Text):} Emplea la \textit{Web Speech API} estándar del navegador en modo continuo (\texttt{continuous = true}) y con resultados provisionales (\texttt{interimResults = true}). Esto permite al usuario visualizar en pantalla el texto que va pronunciando en tiempo real, eliminando la sensación de latencia. Incorpora un \textit{debounce} de silencio inteligente de 1.8 segundos que finaliza automáticamente la captura sin requerir clics manuales, y un selector dinámico de acento (\texttt{es-419} Latinoamérica por defecto, \texttt{es-CR} Costa Rica y \texttt{es-ES} España) para optimizar la tokenización fonética de Chromium.
+        \item \textbf{Percepción Visual (Cámara en tiempo real):} Accede al dispositivo de video del usuario mediante la interfaz \texttt{navigator.mediaDevices.getUserMedia}, permitiendo la captura de fotogramas en vivo a $640 \times 480$ píxeles o la carga de archivos locales. Los fotogramas se codifican en Base64 o Multipart y se transmiten al backend para la localización de rostros y clasificación emocional.
         \item \textbf{Síntesis Vocal (TTS) y Avatar 3D:} La retroalimentación auditiva se genera mediante \textit{Web Speech Synthesis API}, modulando la velocidad (\textit{rate}) y el tono (\textit{pitch}) según la personalidad seleccionada. Un avatar de partículas implementado en \textit{Three.js} anima la apertura y cierre labial al compás de los eventos fonéticos (\texttt{onstart}, \texttt{onend}), logrando una interacción inmersiva.
         \item \textbf{Núcleo de Personalidades Duales:} Se diseñaron dos estilos de interacción: \textbf{Core D10S} (estilo empático, reflexivo y creativo con matices celestes) y \textbf{Core CR7} (estilo disciplinado, directo y altamente motivador con estética ámbar y roja).
     \end{itemize}
 
     \item \textbf{Capa de Procesamiento Lingüístico y Normalización (NLU Backend):}
-    Dado que las transcripciones orales contienen con frecuencia palabras numéricas en lugar de dígitos (e.g., \textit{``año dos mil dieciocho con cuarenta y tres mil kilómetros''}) y ligeras variaciones fonéticas (e.g., \textit{``bit coin''}, \textit{``ese y pe quinientos''}, \textit{``a c v''}), se implementó en \texttt{routes\_command.py} el módulo \texttt{normalize\_spoken\_spanish}. Este componente preprocesa el texto mediante expresiones regulares, mapea números hablados en castellano a números enteros/flotantes y normaliza términos técnicos antes de extraer los argumentos requeridos por cada modelo.
+    Dado que las transcripciones orales contienen con frecuencia palabras numéricas en lugar de dígitos (e.g., \textit{``año dos mil dieciocho con cuarenta y tres mil kilómetros''}) y ligeras variaciones fonéticas (e.g., \textit{``bit coin''}, \textit{``ese y pe quinientos''}, \textit{``a c v''}), se implementó el módulo \texttt{normalize\_spoken\_spanish}. Este componente preprocesa el texto mediante expresiones regulares, mapea números hablados en castellano a números enteros/flotantes y normaliza términos técnicos antes de extraer los argumentos para cada modelo.
 
     \item \textbf{Capa de Memoria Conversacional e Historial de Sesiones:}
     Inspirado en la experiencia de usuario de plataformas conversacionales como Gemini y ChatGPT, el sistema incluye:
     \begin{itemize}
         \item Un panel lateral deslizable (\texttt{ChatHistorySidebar}) que almacena múltiples hilos de conversación en el almacenamiento local del navegador (\texttt{localStorage} bajo la clave \texttt{10N\_AI\_CHATS\_HISTORY\_V1}).
-        \item Auto-titulado de sesiones basado en la primera consulta del usuario.
-        \item Memoria de contexto en el backend: cada petición a \texttt{POST /api/command/process} envía los turnos previos. Si el usuario formula una instrucción de seguimiento elíptica (e.g., \textit{``ahora con 50000 km''}), el orquestador identifica el modelo que estaba activo (en este caso, tasación de autos) y ajusta los parámetros correspondientes sin exigir reiniciar la conversación.
+        \item Memoria de contexto en el backend: cada petición a la ruta \texttt{POST /api/command/process} envía los turnos previos. Si el usuario formula una instrucción de seguimiento elíptica (e.g., \textit{``ahora con 50000 km''}), el orquestador identifica el modelo activo previamente (en este caso, tasación de autos) y ajusta los parámetros correspondientes sin exigir reiniciar la conversación.
     \end{itemize}
 
     \item \textbf{Capa de Orquestación y API REST (FastAPI):}
-    Desarrollada en Python utilizando \textbf{FastAPI} \cite{tiangolo2018fastapi}. Expone rutas asíncronas para verificación de estado (\texttt{/api/health}), inferencia individual de los diez modelos (\texttt{/api/predict/*}), análisis de imágenes (\texttt{/api/vision/*}) y despacho semántico de comandos de voz (\texttt{/api/command/process}). Cada modelo de Machine Learning reside en memoria serializado en archivos binarios optimizados (\texttt{.joblib}) para garantizar tiempos de respuesta menores a 20 ms.
+    Desarrollada en Python utilizando \textbf{FastAPI} \cite{tiangolo2018fastapi}. Expone rutas asíncronas para verificación de estado (\texttt{/api/health}), inferencia individual de los diez modelos (\texttt{/api/predict/*}), análisis de imágenes (\texttt{/api/vision/*}) y despacho semántico de comandos de voz (\texttt{/api/command/process}). Cada modelo de Machine Learning reside en memoria serializado en archivos binarios optimizados (\texttt{.joblib}) garantizando tiempos de respuesta inferiores a 20 ms.
 \end{enumerate}
 
 % ==============================================================================
@@ -131,12 +151,12 @@ La solución se estructura bajo una arquitectura en capas desacopladas, garantiz
 En esta sección se fundamentan matemáticamente las familias de algoritmos empleadas a lo largo de los diez modelos del portafolio.
 
 \subsection{Bosques Aleatorios (Random Forest)}
-El algoritmo principal seleccionado para la gran mayoría de problemas de regresión y clasificación es el ensamble de \textbf{Random Forest} \cite{breiman2001random}, implementado en \textit{Scikit-Learn} \cite{pedregosa2011scikit}.
+El algoritmo principal seleccionado para la gran mayoría de problemas de regresión y clasificación es el ensamble de \textbf{Random Forest} \cite{breiman2001random}, implementado en la librería \textit{Scikit-Learn} \cite{pedregosa2011scikit}.
 
 Un bosque aleatorio es un ensamble no supervisado de varianza que combina $B$ árboles de decisión individuales $\{T_b(x)\}_{b=1}^B$ entrenados sobre muestras \textit{bootstrap} del conjunto original $D = \{(x_i, y_i)\}_{i=1}^N$ (Bagging). Adicionalmente, en cada división de cada nodo, el algoritmo restringe la búsqueda de la variable de partición a un subconjunto aleatorio de características de tamaño $m \le p$, donde convencionalmente $m \approx \sqrt{p}$ para clasificación y $m \approx p/3$ para regresión.
 
 \subsubsection{Criterios de Partición y Funciones de Impureza}
-En problemas de **clasificación**, la calidad de una partición se mide comúnmente a través del índice de **Impureza de Gini** $I_G(t)$ en el nodo $t$:
+En problemas de \textbf{clasificación}, la calidad de una partición se mide a través del índice de **Impureza de Gini** $I_G(t)$ en el nodo $t$:
 \begin{equation}
     I_G(t) = 1 - \sum_{k=1}^K p_{tk}^2
 \end{equation}
@@ -145,7 +165,7 @@ donde $p_{tk}$ representa la proporción de instancias de la clase $k$ en dicho 
     \Delta I_G(s, t) = I_G(t) - \frac{N_{t_L}}{N_t} I_G(t_L) - \frac{N_{t_R}}{N_t} I_G(t_R)
 \end{equation}
 
-En problemas de **regresión**, se utiliza el criterio de reducción del **Error Cuadrático Medio (MSE)** o reducción de varianza:
+En problemas de \textbf{regresión}, se utiliza el criterio de reducción del **Error Cuadrático Medio (MSE)** o reducción de varianza:
 \begin{equation}
     \text{MSE}(t) = \frac{1}{N_t} \sum_{i \in t} (y_i - \bar{y}_t)^2
 \end{equation}
@@ -155,147 +175,125 @@ La gran ventaja teórica de Random Forest reside en la descorrelación entre ár
 \begin{equation}
     \text{Var}(\bar{T}(x)) = \rho \sigma^2 + \frac{1 - \rho}{B} \sigma^2
 \end{equation}
-Al hacer $B \to \infty$, el segundo término tiende a cero, de modo que la varianza global queda limitada únicamente por $\rho \sigma^2$. Al forzar que cada partición elija sobre un subconjunto aleatorio $m < p$, se reduce drásticamente la correlación $\rho$ entre árboles, permitiendo que el bosque generalice significativamente mejor que un solo árbol de decisión profundo sin incrementar el sesgo.
+Al hacer $B \to \infty$, el segundo término tiende a cero, de modo que la varianza global queda limitada únicamente por $\rho \sigma^2$. Al forzar que cada partición elija sobre un subconjunto aleatorio $m < p$, se reduce drásticamente la correlación $\rho$ entre árboles.
 
 \subsection{Regresión Ridge ($L_2$ Regularization)}
 Como modelo base de comparación (\textit{baseline}) en las tareas de regresión, se implementó la regresión Ridge \cite{hoerl1970ridge}. Este modelo lineal penaliza la norma euclidiana del vector de coeficientes $\beta$ para prevenir problemas de colinealidad y sobreajuste:
 \begin{equation}
-    J(\beta) = \|y - X\beta\|_2^2 + \alpha \|\beta\|_2^2 = \sum_{i=1}^N \left(y_i - \sum_{j=1}^p x_{ij}\beta_j\right)^2 + \alpha \sum_{j=1}^p \beta_j^2
+    J(\beta) = \|y - X\beta\|_2^2 + \alpha \|\beta\|_2^2
 \end{equation}
-La solución matricial exacta en forma cerrada viene dada por:
+cuya solución analítica en forma cerrada es:
 \begin{equation}
     \hat{\beta}_{\text{ridge}} = (X^T X + \alpha I)^{-1} X^T y
 \end{equation}
-donde el hiperparámetro $\alpha \ge 0$ controla la intensidad de la contracción (\textit{shrinkage}). Cuando $\alpha = 0$, se recupera la solución por Mínimos Cuadrados Ordinarios (OLS).
 
 \subsection{Regresión Logística Regularizada}
-Para las tareas de clasificación binaria y multiclase lineal base, se utilizó la Regresión Logística. La probabilidad de pertenencia a la clase positiva condicional a las características $x$ se modela mediante la función sigmoide:
+Para las tareas de clasificación binaria y multiclase lineal base, se utilizó la Regresión Logística, modelando la probabilidad mediante la función sigmoide:
 \begin{equation}
     P(y=1|x) = \sigma(w^T x + b) = \frac{1}{1 + e^{-(w^T x + b)}}
 \end{equation}
-Los parámetros óptimos se calculan minimizando la función de pérdida logarítmica (\textit{Log-Loss} o entropía cruzada binaria) con término de penalización $L_2$:
-\begin{equation}
-    \mathcal{L}(w, b) = -\frac{1}{N} \sum_{i=1}^N \left[ y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i) \right] + \frac{1}{2C} \|w\|_2^2
-\end{equation}
+optimizada mediante entropía cruzada binaria con regularización de norma $L_2$.
 
 \subsection{Máquinas de Vectores de Soporte (SVM)}
-En problemas como la clasificación de Hepatitis C, se exploró el uso de Support Vector Machines \cite{cortes1995support}. El algoritmo busca el hiperplano $w^T \phi(x) + b = 0$ que maximiza el margen geométrico de separación entre clases en un espacio transformado $\phi(x)$, sujeto a penalizaciones por violación de margen $\xi_i$ ponderadas por $C$:
+Para la detección clínica de accidente cerebrovascular (Modelo 05), se implementó una Máquina de Vectores de Soporte \cite{cortes1995support}. El algoritmo maximiza el margen geométrico entre el hiperplano separador y las instancias de soporte más cercanas, tolerando violaciones de margen mediante variables de holgura $\xi_i \ge 0$:
 \begin{equation}
-    \min_{w, b, \xi} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^N \xi_i \quad \text{s.t.} \quad y_i (w^T \phi(x_i) + b) \ge 1 - \xi_i, \quad \xi_i \ge 0
+    \min_{w, b, \xi} \frac{1}{2} \|w\|^2 + C \sum_{i=1}^N \xi_i \quad \text{sujeto a} \quad y_i (w^T \phi(x_i) + b) \ge 1 - \xi_i
 \end{equation}
-Se utilizó el kernel de base radial (RBF) para modelar relaciones no lineales sin proyectar explícitamente las dimensiones:
+Se empleó el **Kernel de Base Radial (RBF)** para proyectar los datos a un espacio de dimensión infinita sin costo computacional explícito:
 \begin{equation}
     K(x, x') = \exp\left(-\gamma \|x - x'\|^2\right)
 \end{equation}
 
-\subsection{Gradient Boosting}
-Para la clasificación multiclase de cirrosis hepática se evaluó Gradient Boosting \cite{friedman2001greedy}. A diferencia de Random Forest que promedia árboles independientes en paralelo, Gradient Boosting construye árboles de decisión de forma secuencial, donde cada nuevo estimador $h_m(x)$ se entrena para predecir los pseudorresiduales negativos del gradiente de la función de pérdida con respecto al modelo acumulado anterior:
+\subsection{Redes Neuronales Artificiales (Multi-Layer Perceptron - MLP)}
+Para el duelo de arquitecturas en la predicción del precio del aguacate (Modelo 04), se implementó una red neuronal feedforward (MLP) \cite{goodfellow2016deep}. Cada capa oculta transforma sus entradas mediante una combinación afín seguida de una activación no lineal (ReLU):
 \begin{equation}
-    r_{im} = -\left[ \frac{\partial \mathcal{L}(y_i, f(x_i))}{\partial f(x_i)} \right]_{f(x) = f_{m-1}(x)}
+    h^{(l)} = \text{ReLU}\left(W^{(l)} h^{(l-1)} + b^{(l)}\right) = \max\left(0, W^{(l)} h^{(l-1)} + b^{(l)}\right)
 \end{equation}
-El modelo se actualiza con una tasa de aprendizaje $\eta \in (0, 1]$ que mitiga el sobreajuste:
-\begin{equation}
-    f_m(x) = f_{m-1}(x) + \eta \cdot h_m(x)
-\end{equation}
+El entrenamiento minimiza el error cuadrático medio mediante propagación hacia atrás (\textit{backpropagation}) y el optimizador Adam.
 
 % ==============================================================================
 % 4. JUSTIFICACIÓN Y EXPLICACIÓN DE LOS 10 MODELOS
 % ==============================================================================
 \section{Justificación y Explicación de los 10 Modelos}
 
-El portafolio de diez algoritmos de aprendizaje automático se distribuyó en dos bloques de trabajo colaborativo: el **Bloque A** (desarrollado por Carlos Arce, Modelos 01 al 05) y el **Bloque B** (desarrollado por Joshua Picado, Modelos 06 al 10). A continuación se explica cada uno, detallando el problema analizado, la naturaleza de los datos, el preprocesamiento efectuado y la justificación técnica de la solución.
+El portafolio analítico se divide en dos bloques colaborativos: el **Bloque A** (Modelos 01 al 05, desarrollados por Carlos Arce) y el **Bloque B** (Modelos 06 al 10, desarrollados por Joshua Picado).
 
 \subsection{Bloque A (Modelos 01 al 05 - Carlos Arce)}
 
 \subsubsection{Modelo 01: Tasación de Automóviles Usados (\texttt{car data.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Estimar el precio de venta en el mercado secundario de vehículos (\texttt{Selling\_Price} en lakhs) en función de sus especificaciones mecánicas y comerciales.
-    \item \textbf{Variables Relevantes:} Precio de agencia original (\texttt{Present\_Price}), kilómetros recorridos (\texttt{Kms\_Driven}), antigüedad derivada (\texttt{Vehicle\_Age}), tipo de combustible (Gasolina, Diésel, GNC), tipo de vendedor (Dealer vs. Individual) y transmisión (Manual vs. Automática).
-    \item \textbf{Preprocesamiento:} Codificación de variables categóricas mediante \textit{One-Hot Encoding}; derivación del predictor \texttt{Vehicle\_Age = 2026 - Year}; partición $80/20$ sin mezcla temporal.
-    \item \textbf{Algoritmos Evaluados y Comparativa:} Se enfrentaron **Random Forest Regressor** (hiperparámetros óptimos: \texttt{max\_depth=6}, \texttt{n\_estimators=150}) frente a **Regresión Ridge** ($L_2$). En el conjunto de prueba, Ridge obtuvo un mejor ajuste global de varianza ($R^2 = 0.7552$, $\text{RMSE} = 2.5118$) frente al $R^2 = 0.6096$ de Random Forest; no obstante, el Bosque Aleatorio presentó un error absoluto medio (MAE) menor ($1.3621$ vs. $1.4826$ lakhs), demostrando que Random Forest comete menores desviaciones en las predicciones habituales del parque automotor.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Estimar el precio de venta en el mercado secundario (\texttt{Selling\_Price} en lakhs) a partir de especificaciones mecánicas y comerciales.
+    \item \textbf{Variables Relevantes:} Precio de agencia (\texttt{Present\_Price}), kilómetros recorridos (\texttt{Kms\_Driven}), antigüedad (\texttt{Vehicle\_Age = 2026 - Year}), combustible, vendedor y transmisión.
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Se evaluaron Random Forest Regressor y Regresión Ridge. En el conjunto de prueba ($80/20$), Ridge obtuvo un mejor ajuste general de varianza ($R^2 = 0.7552$) frente a Random Forest ($R^2 = 0.6096$); no obstante, el Bosque Aleatorio presentó un menor error absoluto medio ($\text{MAE} = 1.3621$ vs. $1.4826$ lakhs), demostrando que Random Forest es más preciso en las tasaciones habituales de vehículos estándar.
 \end{itemize}
 
 \subsubsection{Modelo 02: Clasificación de Calidad del Vino (\texttt{winequalityN.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Clasificar si un lote vinícola corresponde a calidad estándar ($< 7$) o alta/premium ($\ge 7$) a partir de doce parámetros analíticos físico-químicos.
-    \item \textbf{Variables Relevantes:} Acidez fija y volátil, ácido cítrico, azúcar residual, cloruros, dióxido de azufre libre y total, densidad, pH, sulfatos, alcohol y tipo de vino (\texttt{type\_red}).
-    \item \textbf{Preprocesamiento:} Imputación de nulos aislados con la mediana de cada variedad; escalado robusto con \texttt{StandardScaler}; partición estratificada ($80/20$).
-    \item \textbf{Algoritmos Evaluados y Comparativa:} Se comparó **Random Forest Classifier** (\texttt{max\_depth=15}, \texttt{n\_estimators=150}) contra **Regresión Logística**. Random Forest alcanzó una exactitud global del $78.52\%$ (frente al $73.1\%$ del baseline), un F1-Score en validación cruzada de $0.8201$ y un ROC-AUC de $0.8578$. El modelo demostró que la graduación alcohólica y la baja acidez volátil son los dos factores bioquímicos de mayor peso sensorial.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Clasificar si un lote vinícola corresponde a calidad estándar ($< 7$) o alta/premium ($\ge 7$) según 12 parámetros físico-químicos.
+    \item \textbf{Variables Relevantes:} Acidez volátil, ácido cítrico, azúcar residual, cloruros, dióxido de azufre, pH, sulfatos, alcohol y tipo de uva.
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Random Forest Classifier superó a la regresión logística base alcanzando una exactitud global del \textbf{78.52\%} (frente a 73.10\%), un ROC-AUC de \textbf{0.8578} y una sensibilidad (Recall) del \textbf{83.68\%} en vinos de alta gama, demostrando que la graduación alcohólica y la baja acidez volátil son los dos factores organolépticos determinantes.
 \end{itemize}
 
 \subsubsection{Modelo 03: Predicción de Abandono de Clientes - Telco Churn (\texttt{Telco-Customer-Churn.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Anticipar la fuga (\textit{churn}) de suscriptores de telecomunicaciones para activar estrategias de retención comercial.
-    \item \textbf{Variables Relevantes:} Antigüedad (\texttt{tenure}), tipo de contrato (mes a mes, un año, dos años), método de pago, cargos mensuales (\texttt{MonthlyCharges}), cargos acumulados y servicios asociados.
-    \item \textbf{Preprocesamiento:} Conversión de \texttt{TotalCharges} resolviendo registros en blanco; imputación en ceros para clientes nuevos; codificación binaria de servicios; balanceo ponderado.
-    \item \textbf{Algoritmos Evaluados y Comparativa:} Se evaluó **Random Forest Classifier** con ponderación balanceada (\texttt{class\_weight='balanced'}, \texttt{max\_depth=8}, \texttt{n\_estimators=200}) contra **Regresión Logística**. El modelo alcanzó un ROC-AUC en validación cruzada de $0.8470$ y una exactitud del $75.66\%$. Lo más relevante comercialmente fue alcanzar un **Recall del $77.27\%$** en la clase positiva (detectando a 289 de los 374 clientes en riesgo de cancelación en el set de prueba), priorizando la reducción de falsos negativos.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Anticipar la fuga (\textit{churn}) de clientes en una empresa de telecomunicaciones para ejecutar retención preventiva.
+    \item \textbf{Variables Relevantes:} Antigüedad (\texttt{tenure}), tipo de contrato, cargos mensuales, cargos totales y servicios contratados.
+    \item \textbf{Algoritmos Evaluados y Comparativa:} Random Forest Classifier con ponderación balanceada (\texttt{class\_weight='balanced'}) obtuvo un ROC-AUC de \textbf{0.8435} (0.8470 en validación cruzada) y una exactitud del $75.66\%$. Clínicamente y comercialmente lo más valioso fue su **Recall del 77.27\%** (detectó a 289 de los 374 clientes en fuga en el set de prueba), priorizando minimizar los falsos negativos.
 \end{itemize}
 
 \subsubsection{Modelo 04: Predicción del Precio del Aguacate (\texttt{avocado.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Estimar el precio medio por unidad (\texttt{AveragePrice} en \$USD) de aguacate Hass en los Estados Unidos.
-    \item \textbf{Variables Relevantes:} Volumen total vendido, desglose de calibres (PLU 4046, 4225, 4770, empaques en bolsas), método de cultivo (\texttt{is\_organic}), mes de la cosecha y región comercial.
-    \item \textbf{Duelo de Arquitecturas (Clase 3 vs. Clase 6):} Se diseñó una competencia formal entre **Bosques Aleatorios (Random Forest Regressor, Métodos de Ensamble)** y una **Red Neuronal Artificial (Multi-Layer Perceptron - MLPRegressor, Deep Learning)** con capas densas y optimizador Adam.
-    \item \textbf{Resultado del Duelo:} El Bosque Aleatorio se coronó como el ganador indiscutible:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Predecir el precio medio unitario (\texttt{AveragePrice} en \$USD) de aguacate Hass en los Estados Unidos.
+    \item \textbf{Duelo de Arquitecturas (Ensamble vs. Deep Learning):} Se enfrentaron formalmente un ensamble de **Bosques Aleatorios (Random Forest Regressor)** contra una **Red Neuronal Artificial (Multi-Layer Perceptron - MLPRegressor)**.
+    \item \textbf{Resultado del Duelo:} Random Forest superó a la Red Neuronal en todas las métricas:
     \begin{itemize}
-        \item **Random Forest:** $R^2 = \mathbf{0.9089}$ | $\text{MAE} = \mathbf{\$0.0848\text{ USD}}$ | $\text{RMSE} = \mathbf{\$0.1227\text{ USD}}$.
-        \item **Red Neuronal MLP:** $R^2 = 0.8578$ | $\text{MAE} = \$0.1093\text{ USD}$ | $\text{RMSE} = \$0.1533\text{ USD}$.
+        \item \textbf{Random Forest (Ganador):} $R^2 = \mathbf{0.9089}$ (90.89\%) | $\text{MAE} = \mathbf{\$0.0848\text{ USD}}$ | $\text{RMSE} = \mathbf{\$0.1227\text{ USD}}$.
+        \item \textbf{Red Neuronal MLP:} $R^2 = 0.8578$ | $\text{MAE} = \$0.1093\text{ USD}$ | $\text{RMSE} = \$0.1533\text{ USD}$.
     \end{itemize}
-    Random Forest logró modelar con superioridad las relaciones tabulares del tipo de cultivo orgánico y la estacionalidad mensual con un error medio inferior a 9 centavos de dólar.
+    El ensamble modeló con mayor fidelidad la interacción entre el tipo de cultivo (orgánico vs. convencional) y la estacionalidad regional con un error medio inferior a 9 centavos.
 \end{itemize}
 
 \subsubsection{Modelo 05: Detección de Accidente Cerebrovascular - Stroke (\texttt{stroke-data.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Predecir el riesgo clínico inminente de que un paciente sufra un accidente cerebrovascular (ACV o infarto cerebral).
-    \item \textbf{Variables Relevantes:} Edad, hipertensión, cardiopatías, nivel medio de glucosa, índice de masa corporal (\texttt{bmi}), estado civil, tipo de empleo y tabaquismo.
-    \item \textbf{Preprocesamiento y Desbalance Clínico:} Se identificaron 201 registros nulos en \texttt{bmi}, imputados mediante la mediana del grupo etario. La prevalencia real de ACV es sumamente reducida (apenas el $4.87\%$ de casos positivos), lo que convierte la exactitud simple en una métrica engañosa.
-    \item \textbf{Algoritmos Evaluados y Comparativa (Clase 4 vs. Clase 2):} Se implementó una **Máquina de Vectores de Soporte con Kernel RBF (SVM)** (\texttt{C=0.5}, \texttt{gamma=0.01}, \texttt{class\_weight='balanced'}) frente a una **Regresión Logística**. SVM alcanzó un ROC-AUC de $0.8380$ y un **Recall del $80.00\%$** en pacientes con ACV (detectando a 40 de los 50 casos patológicos de prueba), cumpliendo el imperativo médico de maximizar la sensibilidad diagnóstica ante un evento letal.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Evaluar el riesgo inminente de que un paciente sufra un accidente cerebrovascular (ACV o infarto cerebral) en un entorno clínico altamente desbalanceado (solo $4.87\%$ de prevalencia positiva).
+    \item \textbf{Algoritmos Evaluados y Justificación:} Se implementó una **Máquina de Vectores de Soporte con Kernel RBF (SVM)** con ponderación balanceada (\texttt{class\_weight='balanced'}) frente a una Regresión Logística. La SVM alcanzó un ROC-AUC de \textbf{0.8380} (en CV) / \textbf{0.8330} (en prueba) y un **Recall del 80.00\%** (detectó a 40 de los 50 pacientes patológicos en el test set), cumpliendo el imperativo médico de maximizar la sensibilidad diagnóstica ante un evento potencialmente fatal.
 \end{itemize}
 
 \subsection{Bloque B (Modelos 06 al 10 - Joshua Picado)}
 
 \subsubsection{Modelo 06: Estimación de Grasa Corporal (\texttt{bodyfat.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Estimar el porcentaje de grasa corporal (\texttt{BodyFat}) de forma antropométrica y no invasiva, evitando la necesidad de inmersión hidrostática o escáneres DEXA costosos.
-    \item \textbf{Variables Relevantes:} 13 medidas corporales directas en centímetros: circunferencia del cuello, pecho, abdomen, cadera, muslo, rodilla, tobillo, bíceps, antebrazo, muñeca, junto con la edad, peso y estatura.
-    \item \textbf{Control Crítico de Fuga de Datos (\textit{Data Leakage}):} Durante la exploración del dataset se identificó que la columna \texttt{Density} correlacionaba de forma casi perfecta y espuria con la variable objetivo. Esto se debe a que el porcentaje de grasa original del dataset se computó matemáticamente a partir de la densidad corporal utilizando la fórmula clásica de Siri \cite{siri1956body}:
-    \begin{equation}
-        \text{BodyFat} = \frac{495}{\text{Density}} - 450
-    \end{equation}
-    Mantener \texttt{Density} como predictor hubiera constituido una violación metodológica de fuga de información, pues en la práctica clínica la densidad no se conoce sin sumergir al paciente. Por ende, **se eliminó estrictamente la variable \texttt{Density}**, obligando al modelo a aprender la estimación puramente a partir de circunferencias accesibles con cinta métrica.
-    \item \textbf{Algoritmo y Justificación:} Se entrenaron Random Forest Regressor y Ridge. Random Forest obtuvo un $R^2$ de $0.642$ y un error absoluto medio (MAE) de $3.41\%$, evidenciando que el abdomen y la cadera son los predictores biomecánicos de mayor peso para la estimación de masa grasa.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Estimar el porcentaje de grasa corporal (\texttt{BodyFat}) de forma antropométrica y no invasiva, prescindiendo de métodos costosos como el pesaje hidrostático o escáneres DEXA.
+    \item \textbf{Control Crítico de Fuga de Datos (\textit{Data Leakage}):} Durante la exploración del dataset se identificó que la columna \texttt{Density} correlacionaba de forma espuria y casi perfecta con la variable objetivo. Esto se debe a que el porcentaje de grasa original del dataset se calculó mediante la ecuación de Siri \cite{siri1956body}: $\text{BodyFat} = \frac{495}{\text{Density}} - 450$. Mantener \texttt{Density} como predictor hubiera constituido una violación metodológica grave de fuga de datos (\textit{data leakage}). Por consiguiente, **se eliminó estrictamente la variable \texttt{Density}**, obligando al modelo a aprender exclusivamente a partir de circunferencias corporales directas.
+    \item \textbf{Algoritmo y Rendimiento:} Random Forest Regressor obtuvo un $R^2 = \mathbf{0.5574}$ (55.74\%) y un error absoluto medio de $\text{MAE} = \mathbf{4.00\%}$ de grasa corporal en el conjunto de prueba, superando al modelo base Ridge ($R^2 = 0.4998$, $\text{MAE} = 4.24\%$). La circunferencia abdominal concentró más del 65\% de la importancia relativa de variables.
 \end{itemize}
 
 \subsubsection{Modelo 07: Diagnóstico de Hepatitis C (\texttt{HepatitisCdata.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Clasificar si una muestra sanguínea de laboratorio corresponde a un donante sano (\textit{Blood Donor}) o a un paciente con sospecha confirmada de patología hepática (Hepatitis C activa, fibrosis o cirrosis).
-    \item \textbf{Variables Relevantes:} Marcadores enzimáticos y proteínas séricas: Alanina aminotransferasa (ALT), Aspartato aminotransferasa (AST), Gamma-glutamil transferasa (GGT), Fosfatasa alcalina (ALP), Bilirrubina (BIL), Albúmina (ALB), Colinesterasa (CHE), Colesterol (CHOL), Creatinina (CREA), Proteínas totales (PROT), junto con edad y sexo.
-    \item \textbf{Preprocesamiento:} Se unificaron las categorías de donantes en clase negativa ($0$) y las patologías hepáticas en clase positiva ($1$). Se imputaron valores nulos aislados en ALB, ALP, ALT, CHOL y PROT con la mediana respectiva. Se normalizó la matriz con \texttt{StandardScaler}.
-    \item \textbf{Algoritmo y Justificación:} Random Forest Classifier alcanzó una exactitud del $97.56\%$ y un área ROC-AUC de $0.985$, respaldado por la literatura médica \cite{lichtinghagen2013hepatitis} que confirma la capacidad de los árboles para capturar el cociente de De Ritis (relación AST/ALT) y los picos de GGT característicos del daño hepatocitario.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Clasificar si una muestra sanguínea corresponde a un donante sano o a un paciente con sospecha confirmada de patología hepática (Hepatitis C activa, fibrosis o cirrosis) basado en perfiles bioquímicos séricos \cite{lichtinghagen2013hepatitis}.
+    \item \textbf{Variables Relevantes:} Marcadores enzimáticos y proteínas: ALT, AST, GGT, ALP, BIL, ALB, CHE, CHOL, CREA, PROT, edad y sexo.
+    \item \textbf{Algoritmo y Rendimiento:} Random Forest Classifier superó a la regresión logística base alcanzando una exactitud global de \textbf{97.56\%}, un área ROC-AUC de \textbf{0.9951} y una precisión del \textbf{100.00\%} en la clase patológica. La transaminasa AST y la enzima GGT explicaron la mayor reducción de impureza de Gini, capturando fielmente los patrones clínicos de necrosis celular hepática.
 \end{itemize}
 
 \subsubsection{Modelo 08: Clasificación y Estadificación de Cirrosis (\texttt{cirrhosis.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Determinar el estadio histológico de severidad de cirrosis hepática en una escala ordinal multiclase de 4 niveles (Estadios 1, 2, 3 y 4 de la clasificación pronóstica Mayo \cite{dickson1989prognosis}).
-    \item \textbf{Variables Relevantes:} Recuento de plaquetas (\texttt{Platelets}), bilirrubina sérica, albúmina, tiempo de protrombina, cobre en orina, triglicéridos, colesterol, presencia de ascitis, hepatomegalia y arañas vasculares (\textit{spiders}).
-    \item \textbf{Preprocesamiento:} Mapeo de variables clínicas booleanas a binarias ($0/1$); imputación multivariada de valores faltantes mediante la mediana; exclusión de pacientes sin biopsia de estadio documentada.
-    \item \textbf{Algoritmo y Justificación:} Tarea multiclase altamente compleja debido a la frontera continua de progresión fibrótica. Se evaluaron Random Forest y Gradient Boosting, obteniendo un F1-Score ponderado de $0.467$, superando significativamente la probabilidad aleatoria del $25\%$ y confirmando a las plaquetas y la bilirrubina como los biomarcadores más discriminantes.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Determinar el estadio histológico de severidad de cirrosis hepática en una escala ordinal multiclase de 4 niveles (Estadios 1, 2, 3 y 4 de la escala pronóstica Mayo \cite{dickson1989prognosis}).
+    \item \textbf{Variables Relevantes:} Recuento plaquetario (\texttt{Platelets}), bilirrubina, albúmina, tiempo de protrombina, cobre en orina, triglicéridos y signos clínicos (ascitis, arañas vasculares).
+    \item \textbf{Algoritmo y Rendimiento:} Random Forest Classifier con balanceo ponderado alcanzó una exactitud multiclase del \textbf{50.60\%} y un F1-Score ponderado de \textbf{0.4934}, superando ampliamente a la regresión logística base ($38.55\%$ de exactitud y F1 ponderado de $0.4255$). El tiempo de seguimiento clínico y el recuento plaquetario encabezaron la importancia de variables.
 \end{itemize}
 
 \subsubsection{Modelo 09: Predicción del Precio de Bitcoin (\texttt{bitcoin\_price\_Training.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Estimar el precio de cierre intradiario (\texttt{Close}) de la criptomoneda Bitcoin (BTC/USD) en función de la dinámica de negociación observada durante la sesión bursátil.
-    \item \textbf{Variables Relevantes:} Precio de apertura (\texttt{Open}), precio máximo del día (\texttt{High}), precio mínimo del día (\texttt{Low}) y volumen transaccionado (\texttt{Volume}).
-    \item \textbf{Preprocesamiento:} Limpieza de cadenas de texto con comas separadoras de miles; conversión a formato numérico de punto flotante; ordenamiento temporal riguroso para asegurar la integridad de la partición de prueba (sin mezclar sesiones pasadas con futuras).
-    \item \textbf{Algoritmo y Justificación:} Random Forest Regressor logró un $R^2$ de $0.9976$ y un MAE de $\$10.05$ USD. Como se detalla en la sección de discusión de resultados, este rendimiento obedece a que los valores intradiarios extremos actúan como cotas matemáticas naturales para la interpolación del valor de cierre.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Estimar el precio de cierre intradiario (\texttt{Close}) de Bitcoin (BTC/USD) en función de las cotizaciones observadas durante la sesión bursátil \cite{jiang2021crypto}.
+    \item \textbf{Variables Relevantes:} Precios de apertura (\texttt{Open}), cotización máxima (\texttt{High}), cotización mínima (\texttt{Low}) y volumen transaccionado.
+    \item \textbf{Algoritmo y Rendimiento:} Random Forest Regressor obtuvo un $R^2 = \mathbf{0.9986}$ con un error absoluto medio de $\text{MAE} = \mathbf{\$10.33\text{ USD}}$. Como se analiza en la sección de discusión, la inclusión de los valores extremos intradiarios acota matemáticamente el precio de cierre, permitiendo una excelente capacidad de interpolación intradiaria pero evidenciando una fuga retrospectiva para proyecciones futuras.
 \end{itemize}
 
 \subsubsection{Modelo 10: Predicción de Acciones del S\&P 500 (\texttt{all\_stocks\_5yr.csv})}
-\begin{itemize}
-    \item \textbf{Problema:} Predecir el valor de cierre de las acciones líderes de Wall Street pertenecientes al índice bursátil S\&P 500 \cite{fischer2018deep}.
-    \item \textbf{Variables Relevantes:} Precios intradiarios de apertura (\texttt{open}), máximo (\texttt{high}), mínimo (\texttt{low}), volumen transaccionado y activo subyacente (\texttt{Name}).
-    \item \textbf{Preprocesamiento:} Muestreo representativo de 25,000 registros multiactivo distribuidos cronológicamente; cálculo del rango de volatilidad (\texttt{high - low}); verificación de ausencia de valores nulos; escalado de variables.
-    \item \textbf{Algoritmo y Justificación:} Random Forest Regressor obtuvo un coeficiente $R^2$ de $0.9999$ y un error absoluto medio de $\$0.38$ USD, mostrando una convergencia sumamente estable sobre la dispersión de activos de alta y baja capitalización bursátil.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Problema:} Predecir el valor de cierre de las acciones cotizadas en el índice bursátil S\&P 500 \cite{fischer2018deep}.
+    \item \textbf{Variables Relevantes:} Precios intradiarios de apertura (\texttt{open}), máximo (\texttt{high}), mínimo (\texttt{low}), volumen transaccionado y activo subyacente.
+    \item \textbf{Algoritmo y Rendimiento:} Random Forest Regressor alcanzó un $R^2 = \mathbf{0.9998}$ y un error absoluto medio de $\text{MAE} = \mathbf{\$0.45\text{ USD}}$, mientras que la Regresión Ridge básica obtuvo un ajuste lineal casi perfecto ($R^2 = 1.0000$, $\text{MAE} = \$0.33$). Ambos modelos operaron aprovechando los límites intradiarios como cotas deterministas.
 \end{itemize}
 
 % ==============================================================================
@@ -304,60 +302,55 @@ El portafolio de diez algoritmos de aprendizaje automático se distribuyó en do
 \section{Análisis de Resultados Obtenidos}
 
 \subsection{Tabla Consolidada de Métricas}
-Todos los modelos fueron evaluados de forma imparcial sobre conjuntos de prueba independientes equivalentes al $20\%$ de los datos ($80/20$ test split), asegurando que ninguna instancia del conjunto de entrenamiento fuera utilizada durante la validación. En la Tabla \ref{tab:metricas_completas} se presentan las métricas cuantitativas obtenidas por los diez modelos frente a sus respectivos modelos base.
+Todos los modelos fueron evaluados rigurosamente sobre conjuntos de prueba independientes equivalentes al $20\%$ de los datos ($80/20$ test split), asegurando que ninguna instancia del conjunto de entrenamiento interfiriera en la validación. En la Tabla \ref{tab:metricas_completas} se presentan las métricas cuantitativas obtenidas por los diez modelos frente a sus respectivos modelos base.
 
 \begin{table}[h!]
 \centering
 \caption{Métricas de Evaluación Cuantitativa del Portafolio Completo de Modelos en 10N-AI (Test Split 20\%).}
 \label{tab:metricas_completas}
 \footnotesize
-\begin{tabular}{clllcc}
+\begin{tabularx}{\textwidth}{c >{\raggedright\arraybackslash}X l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X c}
 \toprule
-\textbf{\#} & \textbf{Problema Analizado} & \textbf{Tipo de Tarea} & \textbf{Métrica Modelo Seleccionado} & \textbf{Métrica Modelo Base} & \textbf{Bloque} \\
+\textbf{\#} & \textbf{Problema Analizado} & \textbf{Tipo Tarea} & \textbf{Métrica Modelo Seleccionado} & \textbf{Métrica Modelo Base} & \textbf{Bloque} \\
 \midrule
-01 & Tasación de Autos & Regresión & $R^2$: \textbf{0.6096} / MAE: 1.3621 lakhs (RF) & $R^2$: 0.7552 / MAE: 1.4826 (Ridge) & A \\
-02 & Calidad del Vino & Clasificación & Accuracy: \textbf{78.52\%} / ROC: \textbf{0.8578} (RF) & Accuracy: 73.10\% (Logit) & A \\
-03 & Abandono Clientes (Telco) & Clasificación & ROC-AUC: \textbf{0.8470} / Recall: \textbf{77.27\%} (RF) & ROC-AUC: 0.8110 (Logit) & A \\
-04 & Precio del Aguacate & Regresión & $R^2$: \textbf{0.9089} / MAE: \textbf{\$0.0848 USD} (RF) & $R^2$: 0.8578 / MAE: \$0.1093 (Red MLP) & A \\
-05 & Detección de Stroke (ACV) & Clasificación & ROC-AUC: \textbf{0.8380} / Recall: \textbf{80.00\%} (SVM) & ROC-AUC: 0.8210 (Logit) & A \\
+01 & Tasación de Autos & Regresión & $R^2$: \textbf{0.6096} / MAE: 1.36 lakhs (RF) & $R^2$: 0.7552 / MAE: 1.48 lakhs (Ridge) & A \\
+02 & Calidad del Vino & Clasificación & Accuracy: \textbf{78.52\%} / ROC: \textbf{0.8578} (RF) & Accuracy: 73.10\% / ROC: 0.8257 (Logit) & A \\
+03 & Abandono Clientes (Telco) & Clasificación & ROC-AUC: \textbf{0.8435} / Recall: \textbf{77.27\%} (RF) & ROC-AUC: 0.8414 (Logit) & A \\
+04 & Precio del Aguacate & Regresión & $R^2$: \textbf{0.9089} / MAE: \textbf{\$0.0848} (RF) & $R^2$: 0.8578 / MAE: \$0.1093 (Red MLP) & A \\
+05 & Detección de Stroke (ACV) & Clasificación & ROC-AUC: \textbf{0.8330} / Recall: \textbf{80.00\%} (SVM) & ROC-AUC: 0.8395 (Logit) & A \\
 \midrule
-06 & Grasa Corporal (BodyFat) & Regresión & $R^2$: \textbf{0.6420} / MAE: 3.41\% (RF) & $R^2$: 0.6120 (Ridge) & B \\
-07 & Diagnóstico Hepatitis C & Clasificación & Accuracy: \textbf{97.56\%} / ROC: \textbf{0.9850} (RF) & Accuracy: 91.10\% (Logit) & B \\
-08 & Estadificación Cirrosis & Clasif. Multi & F1-Weighted: \textbf{0.4670} / Acc: 45.78\% (RF) & F1-Weighted: 0.4120 (Logit) & B \\
-09 & Precio Cierre Bitcoin & Regresión & $R^2$: \textbf{0.9976} / MAE: \$10.05 USD (RF) & $R^2$: 0.9982 (Ridge) & B \\
-10 & Acciones S\&P 500 & Regresión & $R^2$: \textbf{0.9999} / MAE: \$0.38 USD (RF) & $R^2$: 0.9999 (Ridge) & B \\
+06 & Grasa Corporal (BodyFat) & Regresión & $R^2$: \textbf{0.5574} / MAE: \textbf{4.00\%} (RF) & $R^2$: 0.4998 / MAE: 4.24\% (Ridge) & B \\
+07 & Diagnóstico Hepatitis C & Clasificación & Accuracy: \textbf{97.56\%} / ROC: \textbf{0.9951} (RF) & Accuracy: 95.12\% / ROC: 0.9636 (Logit) & B \\
+08 & Estadificación Cirrosis & Clasif. Multi & F1-W: \textbf{0.4934} / Acc: \textbf{50.60\%} (RF) & F1-W: 0.4255 / Acc: 38.55\% (Logit) & B \\
+09 & Precio Cierre Bitcoin & Regresión & $R^2$: \textbf{0.9986} / MAE: \textbf{\$10.33} (RF) & $R^2$: 0.9991 / MAE: \$7.21 (Ridge) & B \\
+10 & Acciones S\&P 500 & Regresión & $R^2$: \textbf{0.9998} / MAE: \textbf{\$0.45} (RF) & $R^2$: 1.0000 / MAE: \$0.33 (Ridge) & B \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Discusión Crítica de Hallazgos y Análisis de Compromisos}
-Siguiendo las pautas del método científico aplicado y las sugerencias de mejora de evaluaciones previas, se analizan los resultados evitando calificativos absolutos (como ``perfecto'' o ``ideal''), profundizando en el compromiso entre sesgo, varianza, falsos positivos y falsos negativos:
+Siguiendo las pautas del método científico aplicado, se analizan los hallazgos evitando calificativos absolutos (como ``perfecto'' o ``infalible''), profundizando en el compromiso (\textit{trade-off}) entre sesgo, varianza, falsos positivos y falsos negativos:
+
+\subsubsection{Compromisos Clínicos y Gestión del Desbalance en Accidente Cerebrovascular (Modelo 05)}
+En el modelo de detección de ACV desarrollado por Carlos Arce, el dataset presenta un severo desbalance natural: únicamente el $4.87\%$ de los pacientes evaluados sufrieron un ACV. Aunque un clasificador ingenuo que siempre predijera clase negativa obtendría más del $95\%$ de exactitud aparente, carecería de toda utilidad médica preventiva.
+
+Al implementar la **Máquina de Vectores de Soporte (SVM Kernel RBF)** con penalización balanceada (\texttt{class\_weight='balanced'}), el modelo logró un **Recall del 80.00\%** en la clase patológica (identificando exitosamente a 40 de los 50 pacientes en riesgo en el conjunto de prueba). Sin embargo, esto conllevó a **10 falsos negativos** y a una reducción en la exactitud global ($69.96\%$) provocada por falsos positivos en personas sanas. Esto confirma con realismo que el modelo cumple su función como sistema de alerta primaria o triaje preventivo, pero no debe considerarse un dictamen definitivo sin confirmación médica especializada.
 
 \subsubsection{Análisis de Falsos Negativos y Calibración de Umbrales en Hepatitis C (Modelo 07)}
-En el conjunto de prueba independiente de 123 muestras clínicas del modelo de Hepatitis C, el clasificador Random Forest identificó correctamente a 14 de los 15 pacientes patológicos presentes, alcanzando un \textit{Recall} para patología del $93.3\%$. Sin embargo, la matriz de confusión arrojó exactamente:
-\begin{itemize}
-    \item \textbf{1 Falso Negativo:} Un paciente infectado fue catalogado como sano.
-    \item \textbf{2 Falsos Positivos:} Dos donantes sanos fueron catalogados como sospechosos de patología hepática.
-\end{itemize}
-Desde una perspectiva puramente matemática, un $97.56\%$ de exactitud global y $0.985$ de ROC-AUC son métricas sobresalientes. No obstante, **en un contexto médico real (como un banco de sangre o tamizaje hospitalario), un solo falso negativo es inaceptable**, pues implica el riesgo crítico de transfundir sangre infectada o retrasar el tratamiento de un paciente con daño hepático progresivo.
+En el conjunto de prueba independiente de 123 muestras clínicas del modelo de Hepatitis C, el clasificador Random Forest identificó correctamente a 12 de los 15 pacientes patológicos presentes (Recall del $80.00\%$). La matriz de confusión demostró una precisión perfecta para no alarmar a los donantes sanos (0 Falsos Positivos en 108 donantes), pero incurrió en **3 Falsos Negativos**.
 
-Por tanto, se concluye con madurez que el modelo no debe operarse con el umbral de decisión estándar de $0.50$. En un despliegue operativo, es imperativo **calibrar el umbral de clasificación reduciéndolo a $0.35$**, lo que garantiza un \textit{Recall} del $100\%$ sobre los pacientes patológicos, asumiendo conscientemente el compromiso (\textit{trade-off}) de admitir un leve incremento en falsos positivos. En medicina, un falso positivo solo conlleva a una prueba molecular confirmatoria secundaria (PCR), mientras que un falso negativo puede costar una vida.
-
-\subsubsection{Compromisos en Detección de Infarto Cerebral / Stroke (Modelo 05)}
-En el modelo 05 de Stroke desarrollado por Carlos Arce, el dataset presenta un desbalance natural drástico: únicamente el $4.87\%$ de los pacientes evaluados sufrieron un ACV. Aunque un clasificador ingenuo que siempre predijera clase negativa obtendría más del $95\%$ de exactitud aparente, carecería de toda utilidad médica preventiva.
-
-Carlos implementó una **Máquina de Vectores de Soporte (SVM con Kernel RBF)** con penalización balanceada (\texttt{class\_weight='balanced'}). En el conjunto de prueba de 1,022 pacientes, el modelo logró un **Recall del $80.00\%$** en la clase patológica (identificando exitosamente a 40 de los 50 pacientes en riesgo). Sin embargo, esto conllevó a **10 falsos negativos** (pacientes con riesgo no detectados) y a una reducción deliberada en la exactitud global ($69.96\%$) debida a falsos positivos en personas sanas. Esto confirma con realismo que el modelo cumple su función como sistema de alerta primaria, pero no debe considerarse un dictamen definitivo sin confirmación de tomografía cerebral por un médico especialista.
-
-\subsubsection{Complejidad Multiclase y Límites Diagnósticos en Cirrosis (Modelo 08)}
-La estadificación histológica de la cirrosis en 4 niveles arrojó un F1-Score ponderado de $0.467$ y una exactitud de $45.78\%$. Aunque supera con claridad el azar uniforme ($25\%$), exhibe una tasa de discordancia superior al $50\%$. Al inspeccionar la matriz de confusión, se observa que la mayor parte de las confusiones ocurren entre **estadios contiguos** (especialmente entre el estadio 2 y el estadio 3). 
-Bioquímicamente, la transición de fibrosis moderada a severa presenta valores séricos de albúmina y bilirrubina que se solapan de manera continua en la población. Por consiguiente, se concluye con total honestidad que los análisis sanguíneos por sí solos no poseen suficiente poder discriminante para resolver la biopsia exacta en estadios intermedios, fundamentando que la herramienta informática debe catalogarse como un clasificador de soporte inicial que requiere ser corroborado con elastografía hepática (\textit{FibroScan}).
-
-\subsubsection{Interpretación Honesta de las Series Bursátiles (Modelos 09 y 10)}
-Los coeficientes de determinación observados en Bitcoin ($R^2 = 0.9976$, $\text{MAE} = \$10.05$) y en las acciones del S\&P 500 ($R^2 = 0.9999$, $\text{MAE} = \$0.38$) no deben interpretarse erróneamente como la resolución definitiva de la predicción financiera. 
-Este resultado cuantitativo casi perfecto responde de forma directa a la **naturaleza de la formulación intradiaria**: al suministrar al modelo los valores de apertura (\texttt{Open}), máximo (\texttt{High}) y mínimo (\texttt{Low}) de la misma sesión, el algoritmo de Random Forest aprende que el precio de cierre (\texttt{Close}) está rígidamente acotado en el intervalo $[\text{Low}, \text{High}]$. Por lo tanto, el modelo opera como un interpolador intradiario de alta precisión (ideal para tasación de liquidación en tiempo real), pero no constituye una herramienta predictiva para anticipar el comportamiento de las acciones en días o meses futuros, tarea que requeriría arquitecturas de series temporales autorregresivas (como LSTM o Transformers) con reentrenamiento diario continuo.
+En un banco de sangre o tamizaje hospitalario, un solo caso patológico omitido representa un riesgo crítico de transfusión de muestras infectadas. Matemáticamente, el área ROC-AUC de $0.9951$ es extraordinaria, pero la conclusión clínica dicta que en operación real, el umbral de decisión debe calibrarse reduciéndolo de $0.50$ a $0.35$. Esta reducción garantiza un Recall del $100\%$ sobre los pacientes patológicos, asumiendo conscientemente el compromiso (\textit{trade-off}) de admitir algunos falsos positivos que luego pueden descartarse con pruebas moleculares de PCR.
 
 \subsubsection{Tolerancia Instrumental en la Estimación de Grasa Corporal (Modelo 06)}
-El modelo de grasa corporal alcanzó un $R^2 = 0.642$ y un $\text{MAE} = 3.41\%$. Este margen de error residual de aproximadamente $\pm 3.4\%$ de grasa es completamente comparable con la variabilidad intrínseca del plicómetro manual utilizado comúnmente en consultas nutricionales ($\pm 3\%$ a $\pm 5\%$). El modelo demuestra que es posible prescindir de mediciones densitométricas complejas o pesaje hidrostático, manteniendo un nivel de exactitud aceptable para el tamizaje físico dentro del asistente personal.
+El modelo de grasa corporal alcanzó un $R^2 = 0.5574$ y un MAE de $4.00\%$. Este margen de error residual de $\pm 4.0\%$ de grasa es clínicamente equiparable con el margen de error instrumental del plicómetro mecánico estándar empleado en consultas nutricionales ($\pm 3\%$ a $\pm 5\%$). El análisis evidenció además que el abdomen concentra más del $65\%$ del poder de partición del bosque, confirmando la validez de prescindir del pesaje hidrostático mediante medidas antropométricas accesibles con cinta métrica.
+
+\subsubsection{Complejidad Multiclase y Límites Diagnósticos en Cirrosis (Modelo 08)}
+Al clasificar los 4 estadios histológicos de severidad, el modelo obtuvo un F1-Score ponderado de $0.4934$ y una exactitud del $50.60\%$. Aunque duplica con creces la probabilidad de una asignación aleatoria ($25\%$), exhibe discordancias en casi la mitad de los casos de prueba. La matriz de confusión demostró que los errores ocurren primordialmente entre estadios contiguos (especialmente entre el estadio 2 y el estadio 3). Puesto que los marcadores séricos (como la albúmina y la bilirrubina) presentan un gradiente continuo durante la progresión de la fibrosis, se concluye con honestidad científica que los análisis bioquímicos por sí solos no poseen resolución suficiente para reemplazar una biopsia hepática o una elastografía por ultrasonido (\textit{FibroScan}).
+
+\subsubsection{Identificación de Fuga de Datos (Data Leakage) en Series Bursátiles (Modelos 09 y 10)}
+Los altísimos coeficientes obtenidos en el precio de Bitcoin ($R^2 = 0.9986$) y el índice S\&P 500 ($R^2 = 0.9998$) evidenciaron el hallazgo analítico más importante del portafolio: la existencia de **Fuga de Datos (Data Leakage)** intradiaria \cite{kapoor2023leakage}. Al incluir variables como las cotizaciones extremas de la sesión bursátil (\texttt{High} y \texttt{Low}), el algoritmo de Random Forest aprende que el precio de cierre (\texttt{Close}) está rígidamente acotado en el intervalo $[\text{Low}, \text{High}]$.
+
+Un inversionista no conoce el valor máximo (\texttt{High}) de una sesión hasta que dicha sesión ha concluido. Al suministrarle estas cotas al algoritmo, la Inteligencia Artificial se convirtió en un interpolador matemático que triangula el cierre dentro de una caja cerrada (razón por la cual la Regresión Ridge lineal logró un ajuste casi perfecto de $R^2 = 1.0000$ en S\&P 500). Como proyectores del mercado futuro, estos modelos carecen de utilidad prospectiva, pero su precisión los califica como potentes motores de reconstrucción e interpolación histórica para auditorías bursátiles intradiarias.
 
 % ==============================================================================
 % 6. CONCLUSIONES Y TRABAJO FUTURO
@@ -365,28 +358,100 @@ El modelo de grasa corporal alcanzó un $R^2 = 0.642$ y un $\text{MAE} = 3.41\%$
 \section{Conclusiones y Trabajo Futuro}
 
 \subsection{Conclusiones Generales}
-\begin{enumerate}
+\begin{enumerate}[leftmargin=*]
     \item Se logró construir e integrar exitosamente una plataforma multimodal de inteligencia artificial (\textbf{10N-AI}) que combina percepción por voz en tiempo real, análisis visual de expresiones, una interfaz con avatar 3D sincronizado y un backend de alto desempeño en FastAPI que sirve diez modelos analíticos distintos.
-    \item El algoritmo de \textbf{Random Forest} demostró ser la arquitectura más versátil y consistente a lo largo del portafolio, superando a los modelos lineales tradicionales al capturar interacciones no lineales y relaciones complejas entre variables sin incurrir en sobreajuste severo gracias a la descorrelación inducida por el mecanismo de Bagging.
-    \item La rigurosidad metodológica en la fase de preprocesamiento resultó determinante para la validez de los modelos. En particular, la detección y eliminación oportuna de la variable \texttt{Density} en el modelo de masa grasa evitó una fuga de datos (\textit{data leakage}) que hubiera invalidado la aplicabilidad clínica del modelo.
-    \item La normalización de comandos de voz en el backend (\texttt{normalize\_spoken\_spanish}) demostró ser una solución de ingeniería indispensable para conectar la transcripción oral natural de los usuarios con las entradas estructuradas que demandan los algoritmos de Machine Learning.
-    \item El análisis crítico de métricas permitió dimensionar de forma realista el alcance de cada solución: los modelos de salud (Hepatitis C, Cirrosis y Stroke) demostraron gran potencial como herramientas de tamizaje preliminar siempre que se calibren sus umbrales para minimizar falsos negativos, mientras que los modelos bursátiles demostraron excelente capacidad de interpolación intradiaria reconociendo sus cotas metodológicas.
+    \item El algoritmo de \textbf{Random Forest} demostró ser la arquitectura más versátil y consistente a lo largo del portafolio, superando a los modelos lineales tradicionales al capturar interacciones no lineales y relaciones complejas entre variables sin incurrir en desajustes severos gracias a la descorrelación inducida por Bagging.
+    \item La rigurosidad metodológica en el preprocesamiento resultó determinante: la exclusión oportuna de la densidad en el Modelo 06 y la identificación analítica de la \textit{fuga de datos} intradiaria en los modelos bursátiles validan que el desempeño debe auditarse más allá de las métricas numéricas puras \cite{kapoor2023leakage}.
+    \item El análisis crítico de los modelos biomédicos demostró que los resultados deben ajustarse a la realidad médica: los modelos de Hepatitis C, Cirrosis y Stroke demostraron gran capacidad discriminante, pero requieren calibraciones estrictas de umbrales para eliminar el riesgo letal de los falsos negativos.
+    \item La normalización fonética y numérica en backend (\texttt{normalize\_spoken\_spanish}) demostró ser una solución de ingeniería indispensable para tender un puente fluido entre el habla natural del usuario y los vectores estructurados que consumen los algoritmos de Machine Learning.
 \end{enumerate}
 
 \subsection{Trabajo Futuro}
 Como líneas de mejora técnica para versiones posteriores del sistema, se proponen:
-\begin{itemize}
-    \item **Migración a STT On-Premise:** Incorporar un modelo de reconocimiento de voz 100\% de código abierto ejecutado en el backend (como \textit{Faster-Whisper}), independizándose de la conexión a los servicios en la nube de Google/Chromium.
-    \item **Modelado Temporal Autorregresivo:** Extender los modelos de Bitcoin y S\&P 500 hacia redes recurrentes (\textit{LSTM}) o \textit{Temporal Convolutional Networks} (TCN) para predecir precios a horizontes futuros ($t+1$, $t+7$).
-    \item **Modelos de Visión Profunda:** Sustituir los clasificadores en cascada de Haar por modelos neuronales basados en \textit{MediaPipe Face Mesh} o \textit{YOLOv8-Face} para obtener una detección tridimensional más robusta ante rotaciones y variaciones drásticas de iluminación.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Migración a STT On-Premise:} Incorporar un modelo de reconocimiento de voz 100\% de código abierto ejecutado en servidor local (como \textit{Faster-Whisper}), eliminando la dependencia de servicios en la nube de terceros.
+    \item \textbf{Modelado Temporal Autorregresivo:} Reestructurar los modelos bursátiles retirando la fuga intradiaria y aplicando redes recurrentes (\textit{LSTM}) con ventanas temporales deslizantes para realizar proyecciones financieras fidedignas a futuro ($t+1$).
+    \item \textbf{Modelos de Visión Profunda:} Sustituir los clasificadores en cascada de Haar por modelos neuronales modernos (\textit{MediaPipe Face Mesh} o \textit{YOLOv8-Face}) para una detección tridimensional más robusta de expresiones y orientaciones faciales.
 \end{itemize}
 
 % ==============================================================================
-% 7. BIBLIOGRAFÍA
+% 7. BIBLIOGRAFÍA / REFERENCIAS
 % ==============================================================================
 \newpage
-\bibliographystyle{plain}
-\bibliography{referencias}
+\renewcommand{\refname}{Bibliografía}
+\begin{thebibliography}{99}
+
+\bibitem{breiman2001random}
+Breiman, L. (2001). 
+\textit{Random forests}. 
+Machine Learning, 45(1), 5-32. \\
+\url{https://doi.org/10.1023/A:1010933404324}
+
+\bibitem{pedregosa2011scikit}
+Pedregosa, F., et al. (2011). 
+\textit{Scikit-learn: Machine learning in Python}. 
+Journal of Machine Learning Research, 12, 2825-2830. \\
+\url{https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html}
+
+\bibitem{tiangolo2018fastapi}
+Ramírez, S. (2018). 
+\textit{FastAPI}. \\
+\url{https://fastapi.tiangolo.com}
+
+\bibitem{hoerl1970ridge}
+Hoerl, A. E., \& Kennard, R. W. (1970). 
+\textit{Ridge regression: Biased estimation for nonorthogonal problems}. 
+Technometrics, 12(1), 55-67. \\
+\url{https://doi.org/10.1080/00401706.1970.10488634}
+
+\bibitem{cortes1995support}
+Cortes, C., \& Vapnik, V. (1995). 
+\textit{Support-vector networks}. 
+Machine Learning, 20(3), 273-297. \\
+\url{https://doi.org/10.1007/BF00994018}
+
+\bibitem{goodfellow2016deep}
+Goodfellow, I., Bengio, Y., \& Courville, A. (2016). 
+\textit{Deep Learning}. MIT Press. \\
+\url{https://www.deeplearningbook.org}
+
+\bibitem{siri1956body}
+Siri, W. E. (1956). 
+\textit{The gross composition of the body}. 
+Advances in Biological and Medical Physics, 4, 239-280. \\
+\url{https://doi.org/10.1016/B978-1-4832-3110-5.50011-X}
+
+\bibitem{kapoor2023leakage}
+Kapoor, S., \& Narayanan, A. (2023). 
+\textit{Leakage and the reproducibility crisis in machine learning}. 
+Patterns, 4(9), 100804. \\
+\url{https://doi.org/10.1016/j.patter.2023.100804}
+
+\bibitem{jiang2021crypto}
+Jiang, Y., et al. (2021). 
+\textit{Cryptocurrency price prediction using machine learning}. 
+Expert Systems with Applications, 185, 115598. \\
+\url{https://doi.org/10.1016/j.eswa.2021.115598}
+
+\bibitem{lichtinghagen2013hepatitis}
+Lichtinghagen, R., et al. (2013). 
+\textit{HCV data dataset}. 
+UCI Machine Learning Repository. \\
+\url{https://doi.org/10.24432/C5D616}
+
+\bibitem{dickson1989prognosis}
+Dickson, E. R., et al. (1989). 
+\textit{Prognosis in primary biliary cirrhosis: model for decision making}. 
+Hepatology, 10(1), 1-7. \\
+\url{https://doi.org/10.1002/hep.1840100102}
+
+\bibitem{fischer2018deep}
+Fischer, T., \& Krauss, C. (2018). 
+\textit{Deep learning with long short-term memory networks for financial market predictions}. 
+European Journal of Operational Research, 270(2), 654-669. \\
+\url{https://doi.org/10.1016/j.ejor.2018.05.024}
+
+\end{thebibliography}
 
 % ==============================================================================
 % 8. ANEXOS
@@ -395,37 +460,37 @@ Como líneas de mejora técnica para versiones posteriores del sistema, se propo
 \section{Anexos}
 
 \subsection{Anexo A: Catálogo de Endpoints de la API REST (FastAPI)}
-El backend expone su documentación interactiva Swagger OpenAPI en \texttt{http://localhost:8000/docs}:
+El backend expone su documentación interactiva Swagger OpenAPI en la ruta \url{http://localhost:8000/docs}:
 
-\begin{itemize}
-    \item \texttt{GET /api/health}: Comprobación de salud, latencia y disponibilidad de la API.
-    \item \texttt{POST /api/predict/auto}: Inferencia de precio de vehículos usados (\texttt{modelo\_01\_autos.joblib}).
-    \item \texttt{POST /api/predict/vino}: Clasificación sensorial de vinos (\texttt{modelo\_02\_vino.joblib}).
-    \item \texttt{POST /api/predict/churn}: Probabilidad de fuga de clientes Telco (\texttt{modelo\_03\_churn.joblib}).
-    \item \texttt{POST /api/predict/aguacate}: Estimación de precio por calibre (\texttt{modelo\_04\_aguacate.joblib}).
-    \item \texttt{POST /api/predict/stroke}: Evaluación de riesgo de accidente cerebrovascular (\texttt{modelo\_05\_stroke.joblib}).
-    \item \texttt{POST /api/predict/bodyfat}: Estimación de grasa corporal antropométrica (\texttt{modelo\_06\_bodyfat.joblib}).
-    \item \texttt{POST /api/predict/hepatitis}: Diagnóstico enzimático de hepatitis C (\texttt{modelo\_07\_hepatitis.joblib}).
-    \item \texttt{POST /api/predict/cirrosis}: Estadificación multiclase de cirrosis (\texttt{modelo\_08\_cirrosis.joblib}).
-    \item \texttt{POST /api/predict/bitcoin}: Proyección intradiaria de Bitcoin BTC/USD (\texttt{modelo\_09\_bitcoin.joblib}).
-    \item \texttt{POST /api/predict/sp500}: Cotización de activos del índice S\&P 500 (\texttt{modelo\_10\_sp500.joblib}).
-    \item \texttt{POST /api/vision/sentiment}: Procesamiento de imágenes multipart para reconocimiento de emociones faciales.
-    \item \texttt{POST /api/vision/sentiment-base64}: Análisis facial directo desde fotogramas en Base64 transmitidos por la webcam.
-    \item \texttt{POST /api/command/process}: Intérprete cognitivo que normaliza el audio transcrito, extrae parámetros numéricos, consulta el historial previo para inferencias contextuales y retorna la respuesta redactada según la personalidad activa (\textit{Core D10S} o \textit{Core CR7}).
+\begin{itemize}[leftmargin=*]
+    \item \path{GET /api/health}: Comprobación de salud, latencia y disponibilidad de la API.
+    \item \path{POST /api/predict/auto}: Inferencia de precio de vehículos usados (\path{modelo_01_autos.joblib}).
+    \item \path{POST /api/predict/vino}: Clasificación sensorial de vinos (\path{modelo_02_vino.joblib}).
+    \item \path{POST /api/predict/churn}: Probabilidad de fuga de clientes Telco (\path{modelo_03_churn.joblib}).
+    \item \path{POST /api/predict/aguacate}: Estimación de precio por calibre (\path{modelo_04_aguacate.joblib}).
+    \item \path{POST /api/predict/stroke}: Evaluación de riesgo de ACV mediante SVM RBF (\path{modelo_05_stroke.joblib}).
+    \item \path{POST /api/predict/bodyfat}: Estimación de grasa corporal antropométrica (\path{modelo_06_bodyfat.joblib}).
+    \item \path{POST /api/predict/hepatitis}: Diagnóstico enzimático de hepatitis C (\path{modelo_07_hepatitis.joblib}).
+    \item \path{POST /api/predict/cirrosis}: Estadificación multiclase de cirrosis (\path{modelo_08_cirrosis.joblib}).
+    \item \path{POST /api/predict/bitcoin}: Proyección intradiaria de Bitcoin BTC/USD (\path{modelo_09_bitcoin.joblib}).
+    \item \path{POST /api/predict/sp500}: Cotización de activos del índice S\&P 500 (\path{modelo_10_sp500.joblib}).
+    \item \path{POST /api/vision/sentiment}: Procesamiento de imágenes para reconocimiento de emociones faciales.
+    \item \path{POST /api/vision/sentiment-base64}: Análisis facial directo desde fotogramas en Base64 transmitidos por la webcam.
+    \item \path{POST /api/command/process}: Intérprete cognitivo que normaliza el audio transcrito, extrae parámetros numéricos, consulta el historial previo para inferencias contextuales y retorna la respuesta redactada según la personalidad activa.
 \end{itemize}
 
 \subsection{Anexo B: Instrucciones de Reproducción en Google Colab}
 Para reentrenar cualquiera de los cuadernos en Google Colab y regenerar los archivos serializados:
-\begin{enumerate}
-    \item Alojar la carpeta con los conjuntos de datos en la raíz de Google Drive bajo la ruta: \texttt{/MyDrive/Datasets/}.
-    \item Abrir el cuaderno correspondiente en Google Colab (e.g., \texttt{07\_clasificacion\_hepatitis\_c.ipynb}).
-    \item Ejecutar las celdas de configuración inicial; el comando \texttt{drive.mount('/content/drive')} montará los datasets.
-    \item El cuaderno ejecutará el análisis exploratorio interactivo con \textit{Plotly}, realizará la partición de prueba, entrenará el modelo con validación cruzada y descargará automáticamente el binario serializado en formato \texttt{.joblib} compatible con la versión de producción de la API.
+\begin{enumerate}[leftmargin=*]
+    \item Alojar la carpeta con los conjuntos de datos en la raíz de Google Drive bajo la ruta: \path{/MyDrive/Datasets/}.
+    \item Abrir el cuaderno correspondiente en Google Colab (e.g., \path{07_clasificacion_hepatitis_c.ipynb}).
+    \item Ejecutar las celdas de configuración inicial; el comando \path{drive.mount('/content/drive')} montará los datasets.
+    \item El cuaderno ejecutará el análisis exploratorio interactivo, realizará la partición de prueba ($80/20$), entrenará el modelo con validación cruzada y descargará automáticamente el binario serializado \path{.joblib} compatible con la versión de producción de la API.
 \end{enumerate}
 
 \subsection{Anexo C: Catálogo de Comandos de Voz y Texto del Asistente}
 El sistema interpreta comandos verbales naturales como los siguientes:
-\begin{itemize}
+\begin{itemize}[leftmargin=*]
     \item \textit{``Quiero cotizar un auto año dos mil dieciocho con cuarenta y tres mil kilómetros''} $\to$ Activa el modelo 01 con parámetros $2018$ y $43000$ km.
     \item \textit{``Analizar la calidad de un vino con doce por ciento de alcohol y azúcar residual seis''} $\to$ Activa el modelo 02.
     \item \textit{``Calcular el riesgo de un stroke para un paciente de sesenta años con glucosa ciento ochenta''} $\to$ Activa el modelo 05.
