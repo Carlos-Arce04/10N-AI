@@ -13,6 +13,10 @@ from app.api.routes_vision import router as vision_router
 from app.api.routes_command import router as command_router
 from app.api.routes_tts import router as tts_router
 
+# Routers de Deep Learning Multimodal (Proyecto 2)
+from app.api.routes_vision_dl import router as vision_dl_router
+from app.api.routes_audio_ctc import router as audio_ctc_router
+
 # Routers modulares dedicados por cada modelo de Machine Learning
 from app.api.routes_car import router as car_router
 from app.api.routes_wine import router as wine_router
@@ -87,6 +91,10 @@ def ensure_rvc_daemon():
 app.include_router(vision_router)
 app.include_router(command_router)
 app.include_router(tts_router)
+
+# Inclusión de routers de Deep Learning Multimodal (Proyecto 2)
+app.include_router(vision_dl_router)
+app.include_router(audio_ctc_router)
 
 # Inclusión de routers modulares por modelo (arquitectura REST limpia)
 # 1. Rutas dedicadas por servicio: /api/aguacate, /api/vino, /api/auto, /api/churn, /api/stroke, /api/bodyfat, etc.
@@ -172,7 +180,15 @@ def root():
             }
         },
         "asistente_voz": "/api/command/process",
-        "vision_computacional": "/api/vision/sentiment"
+        "vision_computacional": "/api/vision/sentiment",
+        "multimodal_deep_learning": {
+            "vision_classify_image": "/api/vision/classify-image",
+            "vision_classify_frame": "/api/vision/classify-frame",
+            "vision_benchmark": "/api/vision/benchmark-info",
+            "audio_transcribe_ctc": "/api/audio/transcribe-ctc",
+            "audio_transcribe_base64": "/api/audio/transcribe-base64",
+            "audio_ctc_info": "/api/audio/ctc-info"
+        }
     }
 
 @app.get("/api/health")
