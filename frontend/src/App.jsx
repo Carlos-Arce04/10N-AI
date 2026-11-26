@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import ParticleAvatar from './components/ParticleAvatar';
 import ChatInterface from './components/ChatInterface';
 import ChatHistorySidebar from './components/ChatHistorySidebar';
+import MultimodalStudio from './components/MultimodalStudio';
 
 const CHATS_STORAGE_KEY = '10N_AI_CHATS_HISTORY_V1';
 
@@ -72,6 +73,7 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
   const [detectedEmotion, setDetectedEmotion] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('chat'); // 'chat' | 'studio'
 
   // Persistir chats en localStorage cada vez que cambien
   useEffect(() => {
@@ -190,7 +192,7 @@ export default function App() {
         isD10S={persona === 'd10s'}
       />
 
-      {/* NAVBAR SUPERIOR LIMPIO (SIN PING, SIN RAYO, SIN SUBTÍTULO) */}
+      {/* NAVBAR SUPERIOR */}
       <Navbar
         persona={persona}
         onSwitchPersona={handleSwitchPersona}
@@ -198,97 +200,106 @@ export default function App() {
         onToggleSidebar={() => setSidebarOpen(prev => !prev)}
         sidebarOpen={sidebarOpen}
         chatCount={chats.length}
+        viewMode={viewMode}
+        onSwitchViewMode={(mode) => {
+          stopVoice();
+          setViewMode(mode);
+        }}
       />
 
-      {/* ÁREA CENTRAL: AVATAR A LA IZQUIERDA Y CHAT EXTENDIDO */}
+      {/* ÁREA CENTRAL: STUDIO MULTIMODAL O CHAT CONVERSACIONAL */}
       <main className="flex-1 w-full min-h-0 flex flex-row overflow-hidden relative">
-        
-        {/* CARA DE PARTÍCULAS: SOLO CUANDO HAY UN CHAT ACTIVO (SE DESPLAZA SI SE ABRE EL HISTORIAL) */}
-        {currentChat && (
-          <aside
-            className={`w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-20 pointer-events-auto transition-transform duration-300 ease-in-out ${
-              sidebarOpen ? 'translate-x-72 sm:translate-x-80' : 'translate-x-0'
-            }`}
-          >
-            <ParticleAvatar
-              persona={persona}
-              isSpeaking={isSpeaking}
-              isListening={isListening}
-              emotion={detectedEmotion}
-            />
-          </aside>
-        )}
-
-        {/* CHAT CONVERSACIONAL EXTENDIDO O PANTALLA DE CREAR NUEVO CHAT */}
-        <section className="flex-1 h-full min-h-0 min-w-0 flex flex-col items-center justify-between pr-3 lg:pr-8 pl-1">
-          <div className="w-full max-w-4xl h-full min-h-0 flex flex-col">
-            {currentChat ? (
-              <ChatInterface
-                key={activeChatId}
-                persona={persona}
-                chatId={activeChatId}
-                initialMessages={currentChat.messages}
-                onUpdateMessages={handleUpdateActiveChatMessages}
-                isSpeaking={isSpeaking}
-                setIsSpeaking={setIsSpeaking}
-                isListening={isListening}
-                setIsListening={setIsListening}
-                detectedEmotion={detectedEmotion}
-              />
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none">
-                <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
-                  <span className="text-3xl">💬</span>
-                </div>
-                <h2 className="font-orbitron text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">
-                  No hay conversaciones activas
-                </h2>
-                <p className="text-sm text-slate-400 max-w-md mb-8 font-rajdhani">
-                  Elige un núcleo inteligente para comenzar una nueva conversación y explorar los modelos predictivos de IA.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
-                  {/* Tarjeta Core D10S */}
-                  <button
-                    onClick={() => handleNewChat('d10s')}
-                    className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-cyan-500/30 hover:border-cyan-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.25)] hover:scale-[1.02]"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-orbitron font-black text-sm text-cyan-400 tracking-wider">CORE D10S</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">Messi</span>
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
-                      Tono argentino cálido y analítico. Inferencia experta en predicciones y modelos.
-                    </p>
-                    <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-semibold">
-                      <span>Iniciar conversación</span>
-                      <span>→</span>
-                    </div>
-                  </button>
-
-                  {/* Tarjeta Core CR7 */}
-                  <button
-                    onClick={() => handleNewChat('cr7')}
-                    className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-amber-500/30 hover:border-amber-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] hover:scale-[1.02]"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-orbitron font-black text-sm text-amber-400 tracking-wider">CORE CR7</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono">Cristiano</span>
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
-                      Máxima potencia, ambición y respuestas directas con mentalidad ganadora.
-                    </p>
-                    <div className="mt-4 flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
-                      <span>Iniciar conversación</span>
-                      <span>→</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
+        {viewMode === 'studio' ? (
+          <MultimodalStudio persona={persona} />
+        ) : (
+          <>
+            {/* CARA DE PARTÍCULAS: SOLO CUANDO HAY UN CHAT ACTIVO (SE DESPLAZA SI SE ABRE EL HISTORIAL) */}
+            {currentChat && (
+              <aside
+                className={`w-[300px] lg:w-[340px] shrink-0 h-full flex flex-col items-center justify-center pl-4 lg:pl-6 pr-2 select-none z-20 pointer-events-auto transition-transform duration-300 ease-in-out ${
+                  sidebarOpen ? 'translate-x-72 sm:translate-x-80' : 'translate-x-0'
+                }`}
+              >
+                <ParticleAvatar
+                  persona={persona}
+                  isSpeaking={isSpeaking}
+                  isListening={isListening}
+                  emotion={detectedEmotion}
+                />
+              </aside>
             )}
-          </div>
-        </section>
 
+            {/* CHAT CONVERSACIONAL EXTENDIDO O PANTALLA DE CREAR NUEVO CHAT */}
+            <section className="flex-1 h-full min-h-0 min-w-0 flex flex-col items-center justify-between pr-3 lg:pr-8 pl-1">
+              <div className="w-full max-w-4xl h-full min-h-0 flex flex-col">
+                {currentChat ? (
+                  <ChatInterface
+                    key={activeChatId}
+                    persona={persona}
+                    chatId={activeChatId}
+                    initialMessages={currentChat.messages}
+                    onUpdateMessages={handleUpdateActiveChatMessages}
+                    isSpeaking={isSpeaking}
+                    setIsSpeaking={setIsSpeaking}
+                    isListening={isListening}
+                    setIsListening={setIsListening}
+                    detectedEmotion={detectedEmotion}
+                  />
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                      <span className="text-3xl">💬</span>
+                    </div>
+                    <h2 className="font-orbitron text-xl sm:text-2xl font-bold text-white mb-2 tracking-wide">
+                      No hay conversaciones activas
+                    </h2>
+                    <p className="text-sm text-slate-400 max-w-md mb-8 font-rajdhani">
+                      Elige un núcleo inteligente para comenzar una nueva conversación y explorar los modelos predictivos de IA.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
+                      {/* Tarjeta Core D10S */}
+                      <button
+                        onClick={() => handleNewChat('d10s')}
+                        className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-cyan-500/30 hover:border-cyan-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.25)] hover:scale-[1.02]"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-orbitron font-black text-sm text-cyan-400 tracking-wider">CORE D10S</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">Messi</span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
+                          Tono argentino cálido y analítico. Inferencia experta en predicciones y modelos.
+                        </p>
+                        <div className="mt-4 flex items-center gap-1.5 text-xs text-cyan-400 font-semibold">
+                          <span>Iniciar conversación</span>
+                          <span>→</span>
+                        </div>
+                      </button>
+
+                      {/* Tarjeta Core CR7 */}
+                      <button
+                        onClick={() => handleNewChat('cr7')}
+                        className="group p-5 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-amber-500/30 hover:border-amber-400 text-left transition-all duration-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] hover:scale-[1.02]"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-orbitron font-black text-sm text-amber-400 tracking-wider">CORE CR7</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono">Cristiano</span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300">
+                          Máxima potencia, ambición y respuestas directas con mentalidad ganadora.
+                        </p>
+                        <div className="mt-4 flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
+                          <span>Iniciar conversación</span>
+                          <span>→</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
